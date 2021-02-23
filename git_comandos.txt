@@ -1,16 +1,34 @@
-…or create a new repository on the command line
-echo "# vallegestion" >> README.md
-git init
-git add README.md
-git commit -m "first commit"
-git remote add origin https://github.com/silparada/vallegestion.git
-git push -u origin master
                 
-…or push an existing repository from the command line
+â€¦or push an existing repository from the command line
 git remote add origin https://github.com/silparada/vallegestion.git
 git push -u origin master
-
 
 
 Quitar carpeta
 git rm -r micarpeta
+
+$ git status
+
+iniciar repositorio local (sino existe)
+git init
+
+Copiar a Repositorio Local
+$ git commit -m "primer commit 1709"
+
+
+Copiar a repositorio ReMOTO
+$ git push origin master
+git push -u origin master
+
+Agregar Repositorio REMOTO
+git remote add origin https://github.com/silparada/vallegestion.git
+
+Remover Repositorio Remoto
+$ git remote rm REMOTO_TasMun
+
+Ver repositorios remotos asociados
+$ git remote -v
+
+
+Si da error "git refusing to merge unrelated histories" primero hacer 
+$ git pull REMOTO_TasMun master --allow-unrelated-histories
