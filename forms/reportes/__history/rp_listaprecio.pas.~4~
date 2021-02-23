@@ -1,0 +1,173 @@
+{ Formumario Informe de precios         }
+{        Silvio Parada                  }
+{         27-01-1998                    }
+{         04-08-2015 actualizado        }
+unit rp_listaprecio;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, DB, ADODB, StdCtrls, Buttons, frxClass, frxDBSet, ComCtrls, ToolWin,
+   frxExportPDF, CheckLst, frxExportBaseDialog, frxExportCSV, FireDAC.Stan.Intf,
+  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
+  FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
+  FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.ExtCtrls, frxExportXLS;
+
+
+type
+
+  TFm_INFPrecios = class(TForm)
+    Ed_titulo: TEdit;
+    Label5: TLabel;
+    CV_Agrupar: TCheckBox;
+    ChkList_Rubros: TCheckListBox;
+    BC_SelAll: TSpeedButton;
+    BC_SelNone: TSpeedButton;
+    ToolBar1: TToolBar;
+    ToolButton2: TToolButton;
+    TB_Print: TToolButton;
+    frxReport1: TfrxReport;
+    frxDBDataset1: TfrxDBDataset;
+    TB_Excel: TToolButton;
+    TB_Pdf: TToolButton;
+    frxPDFExport1: TfrxPDFExport;
+    FDQuery1: TFDQuery;
+    Panel1: TPanel;
+    Panel2: TPanel;
+    frxXLSExport1: TfrxXLSExport;
+    procedure FormCreate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure LlenarRubros;
+//  procedure PrintReport(Sender: TObject);
+    procedure BC_SelAllClick(Sender: TObject);
+    procedure BC_SelNoneClick(Sender: TObject);
+    procedure ToolButton2Click(Sender: TObject);
+    procedure TB_PrintClick(Sender: TObject);
+    procedure TB_PdfClick(Sender: TObject);
+    procedure TB_ExcelClick(Sender: TObject);
+    Procedure ConsultarDB;
+
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Fm_INFPrecios: TFm_INFPrecios;
+
+Implementation
+uses
+    ARticulos,rubros,
+    main, rp_utils;
+{$R *.DFM}
+
+Procedure TFm_INFPrecios.ConsultarDB;
+var
+ i:integer;
+ HayCircuito : boolean;
+ SetOfRubros : STRING;
+ CADAux : string;
+Begin
+
+ SetOfRubros := '';
+ i:= 0;
+ WHILE i < ChkList_Rubros.Items.Count do
+  Begin
+    IF ChkList_Rubros.Checked[i] = True then
+     begin
+       CADAux := ChkList_Rubros.Items[i];
+       CADAux := TRubro(ChkList_Rubros.Items.objects[i]).ID;
+       IF SetOfRubros ='' THEN
+        SetOfRubros :=  quotedstr(CADAux) ELSE  SetOfRubros := SetOfRubros +','+ quotedstr(CADAux);
+     end;
+    i:= i+1;
+  end;
+
+  FDQuery1.close;
+  FDQuery1.sql.clear;
+  FDQuery1.sql.add('SELECT articulos.*, rubros.* FROM articulos INNER JOIN rubros ON articulos.IdRubro=rubros.IdRubro ');
+  FDQuery1.sql.add(' WHERE rubros.IdRubro IN ('+ SetOfRubros +')' );
+  FDQuery1.sql.add('ORDER BY articulos.IdRubro, articulos.Descripcion');
+  FDQuery1.open;
+ // SetUpReporte(frxReport1, Ed_titulo.text);
+end;
+
+procedure TFm_INFPrecios.FormCreate(Sender: TObject);
+begin
+  LlenarRubros;
+End;
+
+procedure TFm_INFPrecios.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  Action := caFree;
+end;
+
+procedure TFm_INFPrecios.LlenarRubros;
+var
+ Lista : TStringList;
+ i : integer;
+begin
+ Lista := TStringList.create;
+ RubrosLeerListado(Lista,'activo');
+ for I := 0 to Lista.Count - 1 do
+  ChkList_Rubros.Items.AddObject('('+ TRubro(Lista.Objects[i]).Id +') '+  TRubro(Lista.Objects[i]).descripcion ,  TRubro(Lista.Objects[i]) );
+ //ChkList_Rubros.Items.Assign(Lista);
+ Lista.Free;
+end;
+
+procedure TFm_INFPrecios.ToolButton2Click(Sender: TObject);
+begin
+ Close;
+end;
+
+procedure TFm_INFPrecios.TB_PrintClick(Sender: TObject);
+Begin
+  ConsultarDB;
+  frxReport1.LoadFromFile(ajusteObj.CarpReportes+ '\ListaPrecios.fr3');
+  TfrxGroupHeader(frxReport1.FindObject('GroupHeader1')).StartNewPage := CV_Agrupar.Checked ;
+  frxReport1.ShowReport;
+end;
+
+procedure TFm_INFPrecios.TB_ExcelClick(Sender: TObject);
+begin
+
+ ConsultarDB;
+ frxReport1.LoadFromFile(ajusteObj.CarpReportes+ '\ListaPrecios.fr3');
+ TfrxGroupHeader(frxReport1.FindObject('GroupHeader1')).StartNewPage := CV_Agrupar.Checked ;
+
+ frxXLSExport1.FileName := 'ListaEX.xlsx';
+ frxXLSExport1.DefaultPath := ajusteObj.CarpExportacion;
+
+ frxReport1.PrepareReport(True);
+ frxReport1.Export(frxXLSExport1);
+
+end;
+
+procedure TFm_INFPrecios.TB_PdfClick(Sender: TObject);
+begin
+  frxReport1.LoadFromFile(ajusteObj.CarpReportes+ '\ListaPrecios.fr3');
+  TfrxGroupHeader(frxReport1.FindObject('GroupHeader1')).StartNewPage := CV_Agrupar.Checked;
+  frxPdfExport1.FileName := 'Lista de precios.pdf';
+  frxPdfExport1.DefaultPath := ajusteObj.CarpExportacion;
+  frxReport1.Export(frxPdfExport1);
+
+end;
+
+procedure TFm_INFPrecios.BC_SelAllClick(Sender: TObject);
+var i :integer;
+begin
+ For i:=0 to  ChkList_Rubros.Items.Count-1 do
+  ChkList_Rubros.Checked[i] := True;
+end;
+
+procedure TFm_INFPrecios.BC_SelNoneClick(Sender: TObject);
+var i :integer;
+begin
+ For i:=0 to  ChkList_Rubros.Items.Count-1 do
+  ChkList_Rubros.Checked[i] := false;
+end;
+
+end.

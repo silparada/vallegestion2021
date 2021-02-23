@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<TfrxReport Version="5.5.6" DotMatrixReport="False" IniFile="\Software\Fast Reports" PreviewOptions.Buttons="4095" PreviewOptions.Zoom="1" PrintOptions.Printer="Por defecto" PrintOptions.PrintOnSheet="0" ReportOptions.CreateDate="42545,759161169" ReportOptions.Description.Text="" ReportOptions.LastChange="42547,4474828125" ScriptLanguage="PascalScript" ScriptText.Text="procedure BC_CAEOnBeforePrint(Sender: TfrxComponent);&#13;&#10;begin&#13;&#10;&#13;&#10;end;&#13;&#10;&#13;&#10;begin&#13;&#10;&#13;&#10;end.">
+  <Datasets>
+    <item DataSet="DSItems" DataSetName="DSItems"/>
+  </Datasets>
+  <Variables>
+    <item Name=" Encabezado"/>
+    <item Name="Comprobante"/>
+    <item Name="Numero"/>
+    <item Name="Fecha"/>
+    <item Name="FechaVto"/>
+    <item Name="PtoVta"/>
+    <item Name=" Pie"/>
+    <item Name="BC_CAE"/>
+    <item Name="CAE"/>
+    <item Name="CAE_Vto"/>
+    <item Name=" Clientes"/>
+    <item Name="IdCliente"/>
+    <item Name="Nombre"/>
+    <item Name="Direccion"/>
+    <item Name="Ciudad"/>
+    <item Name="CUIT"/>
+    <item Name="CondVta"/>
+    <item Name="CondTrib"/>
+    <item Name=" SubTotal"/>
+    <item Name="Iva1"/>
+    <item Name="Iva2"/>
+    <item Name="Iva3"/>
+    <item Name="Importe"/>
+    <item Name="SubTotal"/>
+    <item Name="Imp1"/>
+    <item Name="Imp2"/>
+    <item Name="Imp3"/>
+  </Variables>
+  <TfrxDataPage Name="Data" Height="1000" Left="0" Top="0" Width="1000"/>
+  <TfrxReportPage Name="Page1" PaperWidth="210" PaperHeight="297" PaperSize="9" LeftMargin="10" RightMargin="10" TopMargin="10" BottomMargin="10" ColumnWidth="0" ColumnPositions.Text="" HGuides.Text="" VGuides.Text="">
+    <TfrxMasterData Name="MasterData1" FillType="ftBrush" FillGap.Top="0" FillGap.Left="0" FillGap.Bottom="0" FillGap.Right="0" Height="15,11812" Left="0" Top="381,73253" Width="718,1107" ColumnWidth="0" ColumnGap="0" DataSet="DSItems" DataSetName="DSItems" KeepFooter="True" RowCount="0">
+      <TfrxMemoView Name="Me_Codigo" Left="7,55906" Top="0" Width="79,37013" Height="11,33859" DataField="IdArticulo" DataSet="DSItems" DataSetName="DSItems" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="1" ParentFont="False" Text="[DSItems.&#34;IdArticulo&#34;]"/>
+      <TfrxMemoView Name="Me_Descripcion" Left="90,70872" Top="0" Width="389,29159" Height="11,33859" DataSet="DSItems" DataSetName="DSItems" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="1" ParentFont="False" Text="[DSItems.&#34;Descripcion&#34;]"/>
+      <TfrxMemoView Name="Me_Precio" Left="491,3389" Top="0" Width="45,35436" Height="11,33859" DataSet="DSItems" DataSetName="DSItems" DisplayFormat.FormatStr="%2.2f" DisplayFormat.Kind="fkNumeric" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="1" HAlign="haRight" ParentFont="False" Text="[DSItems.&#34;Precio&#34;]"/>
+      <TfrxMemoView Name="Me_Cantidad" Left="548,03185" Top="0" Width="45,35436" Height="11,33859" DataSet="DSItems" DataSetName="DSItems" DisplayFormat.FormatStr="%2.2f" DisplayFormat.Kind="fkNumeric" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="1" HAlign="haRight" ParentFont="False" Text="[DSItems.&#34;Cantidad&#34;]"/>
+      <TfrxMemoView Name="Me_IVA" Left="604,7248" Top="0" Width="45,35436" Height="11,33859" DataSet="DSItems" DataSetName="DSItems" DisplayFormat.FormatStr="%2.2f" DisplayFormat.Kind="fkNumeric" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="1" HAlign="haRight" ParentFont="False" Text="[DSItems.&#34;TasaIva&#34;]"/>
+      <TfrxMemoView Name="Me_Importe" Left="653,85869" Top="0" Width="45,35436" Height="11,33859" DataSet="DSItems" DataSetName="DSItems" DisplayFormat.FormatStr="%2.2f" DisplayFormat.Kind="fkNumeric" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="1" HAlign="haRight" ParentFont="False" Text="[DSItems.&#34;Importe&#34;]"/>
+    </TfrxMasterData>
+    <TfrxPageHeader Name="PageHeader1" FillType="ftBrush" FillGap.Top="0" FillGap.Left="0" FillGap.Bottom="0" FillGap.Right="0" Height="302,362204724409" Left="0" Top="18,89765" Width="718,1107">
+      <TfrxMemoView Name="Me_Comprobante" Left="521,57514" Top="18,89765" Width="181,41744" Height="18,89765" Font.Charset="1" Font.Color="0" Font.Height="-16" Font.Name="Calibri" Font.Style="1" ParentFont="False" Text="[Comprobante]"/>
+      <TfrxMemoView Name="Me_Numero" Left="623,62245" Top="45,35436" Width="75,5906" Height="18,89765" Font.Charset="1" Font.Color="0" Font.Height="-16" Font.Name="Calibri" Font.Style="1" HAlign="haRight" ParentFont="False" Text="[Numero]"/>
+      <TfrxMemoView Name="Me_Fecha" Left="623,62245" Top="79,37013" Width="75,5906" Height="18,89765" DisplayFormat.FormatStr="mm-dd-yyyy" DisplayFormat.Kind="fkDateTime" Font.Charset="1" Font.Color="0" Font.Height="-15" Font.Name="Calibri" Font.Style="0" ParentFont="False" Text="[Fecha]"/>
+      <TfrxMemoView Name="Me_FechaVto" Left="623,62245" Top="102,04731" Width="75,5906" Height="18,89765" Font.Charset="1" Font.Color="0" Font.Height="-15" Font.Name="Calibri" Font.Style="0" ParentFont="False" Text="[FechaVto]"/>
+      <TfrxMemoView Name="Me_IdCliente" Left="11,33859" Top="207,87415" Width="41,57483" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-12" Font.Name="Calibri" Font.Style="1" ParentFont="False" Text="[IdCliente]"/>
+      <TfrxMemoView Name="Me_Nombre" Left="56,69295" Top="207,87415" Width="287,24428" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-12" Font.Name="Calibri" Font.Style="1" ParentFont="False" Text="[Nombre]"/>
+      <TfrxMemoView Name="Me_Direccion" Left="56,69295" Top="226,7718" Width="287,24428" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-12" Font.Name="Calibri" Font.Style="1" ParentFont="False" Text="[Direccion]"/>
+      <TfrxMemoView Name="Me_Ciudad" Left="56,69295" Top="245,66945" Width="287,24428" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-12" Font.Name="Calibri" Font.Style="1" ParentFont="False" Text="[Ciudad]"/>
+      <TfrxMemoView Name="Me_CUIT" Left="506,45702" Top="207,87415" Width="200,31509" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-12" Font.Name="Calibri" Font.Style="1" ParentFont="False" Text="[CUIT]"/>
+      <TfrxMemoView Name="Me_CondTrib" Left="506,45702" Top="245,66945" Width="200,31509" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-12" Font.Name="Calibri" Font.Style="1" ParentFont="False" Text="[CondTrib]"/>
+      <TfrxMemoView Name="Me_COndVta" Left="506,45702" Top="226,7718" Width="200,31509" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-12" Font.Name="Calibri" Font.Style="1" ParentFont="False" Text="[CondVta]"/>
+      <TfrxMemoView Name="Memo27" Left="551,81138" Top="45,35436" Width="68,03154" Height="18,89765" Font.Charset="1" Font.Color="0" Font.Height="-16" Font.Name="Calibri" Font.Style="1" HAlign="haRight" ParentFont="False" Text="[PtoVta]"/>
+    </TfrxPageHeader>
+    <TfrxPageFooter Name="PageFooter1" FillType="ftBrush" FillGap.Top="0" FillGap.Left="0" FillGap.Bottom="0" FillGap.Right="0" Height="136,06308" Left="0" Top="502,67749" Width="718,1107">
+      <TfrxMemoView Name="Memo18" Left="566,9295" Top="18,89765" Width="132,28355" Height="18,89765" DisplayFormat.FormatStr="%2.2f" DisplayFormat.Kind="fkNumeric" Font.Charset="1" Font.Color="0" Font.Height="-15" Font.Name="Arial" Font.Style="1" HAlign="haRight" ParentFont="False" Text="$ [Importe]"/>
+      <TfrxMemoView Name="Memo22" Left="638,74057" Top="3,77953" Width="60,47248" Height="18,89765" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="0" HAlign="haRight" ParentFont="False" Text="Importe"/>
+    </TfrxPageFooter>
+    <TfrxFooter Name="Footer1" FillType="ftBrush" FillGap.Top="0" FillGap.Left="0" FillGap.Bottom="0" FillGap.Right="0" Height="22,67718" Left="0" Top="419,52783" Width="718,1107">
+      <TfrxMemoView Name="Memo26" Left="90,70872" Top="3,77953" Width="287,24428" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Arial" Font.Style="2" ParentFont="False" Text="Cantidad de Items: [COUNT(MasterData1)]"/>
+    </TfrxFooter>
+  </TfrxReportPage>
+</TfrxReport>

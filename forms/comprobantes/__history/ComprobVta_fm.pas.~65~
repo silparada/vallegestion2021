@@ -1,0 +1,451 @@
+unit ComprobVta_fm;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ComCtrls, StdCtrls, Buttons, DB, ADODB, ExtCtrls, ToolWin, Menus;
+
+type
+  TFmListaComprobVta = class(TForm)
+    BC_ConsultarDb: TBitBtn;
+    ToolBar3: TToolBar;
+    TB_ReadDB: TToolButton;
+    Tb_PDF: TToolButton;
+    TB_Email: TToolButton;
+    TB_COnfig: TToolButton;
+    ListView1: TListView;
+    Panel3: TPanel;
+    PopupMenu1: TPopupMenu;
+    MenuItem1: TMenuItem;
+    MenuItem2: TMenuItem;
+    MenuItem3: TMenuItem;
+    Todos1: TMenuItem;
+    Ed_busqCliente: TEdit;
+    TB_Print: TToolButton;
+    StatusBar1: TStatusBar;
+    Ed_BusqNro: TEdit;
+    TM_Delete: TToolButton;
+    ToolButton1: TToolButton;
+    CB_TipoComprVta: TComboBox;
+    CB_Estado: TComboBox;
+    Pn_ActEstado: TPanel;
+    Bc_Aceptar: TBitBtn;
+    BC_Cancelar: TBitBtn;
+    Cb_ActualizarEstado: TComboBox;
+    TB_CombiarEstado: TToolButton;
+    Label1: TLabel;
+    lb_nroCompEstado: TLabel;
+    pn_GenComprob: TPanel;
+    Label2: TLabel;
+    lb_NroCompNuevo: TLabel;
+    BitBtn1: TBitBtn;
+    BitBtn2: TBitBtn;
+    CB_TipoCompNuevo: TComboBox;
+    TB_GenComprob: TToolButton;
+    Ed_Observaciones: TLabeledEdit;
+    procedure TB_ReadDBClick(Sender: TObject);
+    procedure TB_EmailClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormCreate(Sender: TObject);
+    procedure PopupMenu1Change(Sender: TObject; Source: TMenuItem;
+      Rebuild: Boolean);
+    procedure TB_PrintClick(Sender: TObject);
+    procedure Tb_PDFClick(Sender: TObject);
+    procedure ListView1Data(Sender: TObject; Item: TListItem);
+    procedure Ed_BusqNroChange(Sender: TObject);
+    procedure Ed_busqClienteChange(Sender: TObject);
+    procedure TM_DeleteClick(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+    procedure ListView1AdvancedCustomDrawSubItem(Sender: TCustomListView;
+      Item: TListItem; SubItem: Integer; State: TCustomDrawState;
+      Stage: TCustomDrawStage; var DefaultDraw: Boolean);
+    procedure ToolButton1Click(Sender: TObject);
+    procedure TB_CombiarEstadoClick(Sender: TObject);
+    procedure BC_CancelarClick(Sender: TObject);
+    procedure Bc_AceptarClick(Sender: TObject);
+    procedure TB_GenComprobClick(Sender: TObject);
+    procedure BitBtn1Click(Sender: TObject);
+    procedure BitBtn2Click(Sender: TObject);
+  private
+    { Private declarations }
+    procedure ApplyFilter(const S: string);        //nro
+    procedure ApplyFilter2(const S: string); //nombre clie
+    procedure Bloqueo;
+    procedure DesBloqueo;
+  public
+    { Public declarations }
+  end;
+
+var
+  FmListaComprobVta: TFmListaComprobVta;
+implementation
+    uses
+    //class
+    Comprobvta,itemsvta,ComprobVtaImpuestos, clientes,articulos, ComprobVtaEstados, ComprobVtaAdd_fm,
+
+    main,ClienteBuscar, UtilsFunc,importsdll   ,   ShellApi, ClipBrd,
+    PrintComprob
+       ;
+{$R *.dfm}
+var
+ // BusqIndiceDesde : integer;
+  ListaActiva : TStringList;
+  ListaCompleta : TStringList;
+  bm: TBitmap;
+  pn: TPanel;
+  img: TImage;
+  Editar : Boolean;
+
+procedure TFmListaComprobVta.Bc_AceptarClick(Sender: TObject);
+var
+  IdComp : LongInt;
+begin
+  DesBloqueo;
+  Pn_ActEstado.Visible := false;
+  IdComp := StrToInt( ListView1.Items[ListView1.ItemIndex].caption) ;
+  ComprobVtaActEstado(IdComp , Cb_ActualizarEstado.text);
+end;
+
+procedure TFmListaComprobVta.BC_CancelarClick(Sender: TObject);
+begin
+  DesBloqueo;
+  Pn_ActEstado.Visible := false;
+end;
+
+procedure TFmListaComprobVta.BitBtn1Click(Sender: TObject);
+var
+ i,IdComp : LongInt;
+ FmComprobVta1 : TFmComprobVta_add;
+ TabSheet : TtabSheet;
+ COmprovante1 : TComprobante;
+  LI : TListItem;
+  Articulo1 : TArticulo;
+begin
+
+   if FmMain.EstaCreado(CB_TipoCompNuevo.text) then
+      exit;
+
+    tabSheet := TTabSheet.Create(FmMain.PageControlMain);
+    tabSheet.PageControl := FmMain.PageControlMain;
+
+    FmComprobVta1 := TFmComprobVta_add.Create(tabSheet);
+    FmComprobVta1.Caption := CB_TipoCompNuevo.text;
+    FmComprobVta1.Parent := tabSheet;
+    FmMain.PageControlMain.ActivePage := tabSheet;
+    tabSheet.Caption := FmComprobVta1.Caption;
+    FmComprobVta1.show;
+    FmComprobVta1.CB_TipoComprob.text  := CB_TipoCompNuevo.text;
+    FmComprobVta1.ActNumeracion;
+
+   DesBloqueo;
+   pn_GenComprob.Visible := false;
+
+   IdComp := StrToInt( ListView1.Items[ListView1.ItemIndex].caption);
+
+   COmprovante1 := TComprobante.create;
+   ComprobVtaLeerComp(IdComp, COmprovante1);
+
+   FmComprobVta1.Ed_IdCliente.text := IntToStr(COmprovante1.IdCliente) ;
+   FmComprobVta1.Ed_Nombre.text := COmprovante1.Nombre;
+
+   Articulo1 := TArticulo.create;
+   For i:=0 to Comprovante1.ListaItems.Count-1 do
+    begin
+      Articulo1.IdArticulo := TItemFact(Comprovante1.ListaItems[i]).IdItem;
+      ArticulosLeerArticulo(Articulo1);
+      LI := FmComprobVta1.LV_Items.items.Add;
+      LI.Caption   := TItemFact(Comprovante1.ListaItems[i]).IdItem;
+      LI.SubItems.Add( TItemFact(COmprovante1.ListaItems[i]).Descripcion );
+      LI.SubItems.Add( FloatToStrF( TItemFact(COmprovante1.ListaItems[i]).Precio, ffFixed,18,2) );
+      LI.SubItems.Add( FloatToStrF( TItemFact(COmprovante1.ListaItems[i]).Cantidad, ffFixed,18,2) );
+      LI.SubItems.Add( FloatToStrF( TItemFact(COmprovante1.ListaItems[i]).Descuento, ffFixed,18,2) );
+      LI.SubItems.Add( FloatToStrF(0, fffixed,18,3) ); //importe
+      LI.SubItems.Add( TItemFact(COmprovante1.ListaItems[i]).TasaIva );
+      //LeerTasaIva( Articulo1.CodIva , Articulo1.TasaIva );
+      Li.SubItems.Add(  Articulo1.CodIva );
+    end;
+   FmComprobVta1.SumarItems;
+   FmComprobVta1.CalcularTotales;
+
+   //falta cargar datos
+{  IdComp := StrToInt( ListView1.Items[ListView1.ItemIndex].caption) ;
+   ComprovVtaCopiar( IdComp, CB_TipoCompNuevo.text); }
+  Articulo1.free;
+  COmprovante1.free;
+
+end;
+
+procedure TFmListaComprobVta.BitBtn2Click(Sender: TObject);
+begin
+   DesBloqueo;
+   pn_GenComprob.Visible := false;
+
+end;
+
+procedure TFmListaComprobVta.Bloqueo;
+begin
+  bm := GetFormImage;
+  FadeBitmap(bm);
+  pn := TPanel.Create(nil);
+  img := TImage.Create(nil);
+  img.Parent := pn;
+     pn.BoundsRect := ClientRect;
+     pn.BevelOuter := bvNone;
+     img.Align := alClient;
+     img.Picture.Bitmap.Assign(bm);
+     pn.Parent := Self;
+end;
+procedure TFmListaComprobVta.DesBloqueo;
+begin
+  img.Free;
+  pn.Free;
+  bm.Free;
+end;
+
+
+procedure TFmListaComprobVta.Ed_busqClienteChange(Sender: TObject);
+begin
+ ApplyFilter2((Sender as TEdit).Text);
+end;
+
+procedure TFmListaComprobVta.Ed_BusqNroChange(Sender: TObject);
+begin
+  ApplyFilter((Sender as TEdit).Text);
+end;
+
+procedure TFmListaComprobVta.ApplyFilter(const S: string);
+var
+  I: Integer;
+begin
+  ListView1.Items.BeginUpdate;
+  try
+    ListView1.Clear;
+    ListaActiva.Clear;
+  //  SHOWMESSAGE('OK2');
+    for I := 0 to ListaCompleta.Count - 1 do
+      if (S = '') or (Pos(UpperCase(S), UpperCase( TComprobante(ListaCompleta.Objects[i]).Numero ) )  <> 0 ) then
+        ListaActiva.AddObject(ListaCompleta[I], ListaCompleta.Objects[i] );
+    ListView1.Items.Count := ListaActiva.Count;
+  finally
+    ListView1.Items.EndUpdate;
+  end;
+  StatusBar1.Panels[0].Text :=  'Registros: '+IntToStr(ListView1.Items.Count);
+end;
+
+procedure TFmListaComprobVta.ApplyFilter2(const S: string);
+var
+  I: Integer;
+begin
+  ListView1.Items.BeginUpdate;
+  try
+    ListView1.Clear;
+    ListaActiva.Clear;
+  //  SHOWMESSAGE('OK2');
+    for I := 0 to ListaCompleta.Count - 1 do
+      if (S = '') or (Pos(UpperCase(S), UpperCase( TComprobante(ListaCompleta.Objects[i]).Nombre ))  <> 0 ) then
+        ListaActiva.AddObject(ListaCompleta[I], ListaCompleta.Objects[i] );
+    ListView1.Items.Count := ListaActiva.Count;
+  finally
+    ListView1.Items.EndUpdate;
+  end;
+  StatusBar1.Panels[0].Text :=  'Registros: '+IntToStr(ListView1.Items.Count);
+end;
+
+
+procedure TFmListaComprobVta.FormActivate(Sender: TObject);
+begin
+ TB_ReadDB.onclick(sender);
+end;
+
+procedure TFmListaComprobVta.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  LstEstados.free;
+  ListaActiva.free;
+  ListaCompleta.free;
+  action := cafree;
+end;
+
+procedure TFmListaComprobVta.FormCreate(Sender: TObject);
+begin
+ ListaActiva := TStringList.create;
+ ListaCompleta := TStringList.create;
+ CB_TipoComprVta.Items.Assign(LstTipoComprbvta);  //LstTipoComprbvta cargado en main
+ CB_TipoComprVta.Items.Add('TODOS');
+ CB_TipoCompNuevo.Items.Assign(LstTipoComprbvta);  // cargado en main
+
+ CB_Estado.Items.Assign(LstEstados);  // cargado en main
+ CB_Estado.Items.Add('TODOS');
+ Cb_ActualizarEstado.Items.Assign(LstEstados);  // cargado en main
+ Cb_ActualizarEstado.text := 'NUEVO';
+
+end;
+
+procedure TFmListaComprobVta.ListView1AdvancedCustomDrawSubItem(
+  Sender: TCustomListView; Item: TListItem; SubItem: Integer;
+  State: TCustomDrawState; Stage: TCustomDrawStage; var DefaultDraw: Boolean);
+var
+  CodEstado : String;
+  i : Integer;
+begin
+ if (SubItem=9) then
+  Begin
+   CodEstado := TCOmprobante(ListaActiva.objects[Item.Index]).CodEstado ;
+   i := LstEstados.IndexOf(CodEstado);
+   If i >= 0 then
+    Sender.Canvas.Brush.Color :=  StringToColor( TComprobVtaEstados(LstEstados.Objects[i]).color );
+  End;
+  DefaultDraw := true;
+end;
+
+procedure TFmListaComprobVta.ListView1Data(Sender: TObject; Item: TListItem);
+
+begin
+  with Item do
+   begin
+   Caption := IntToStr( TCOmprobante(ListaActiva.objects[Item.Index]).Id);
+   SubItems.Add( TCOmprobante(ListaActiva.objects[Item.Index]).PtoVta );
+   SubItems.Add( TCOmprobante(ListaActiva.objects[Item.Index]).Numero );
+   SubItems.Add( TCOmprobante(ListaActiva.objects[Item.Index]).TipoComprob );
+   SubItems.Add( FormatDateTime( 'dd-mm-yyyy', TCOmprobante(ListaActiva.objects[Item.Index]).Fecha) );
+   SubItems.Add( IntToStr( TCOmprobante(ListaActiva.objects[Item.Index]).IdCliente));
+   SubItems.Add( TCOmprobante(ListaActiva.objects[Item.Index]).Nombre);
+   SubItems.Add( FloatToStrF(TCOmprobante(ListaActiva.objects[Item.Index]).Importe, ffFixed,18,2) );
+   SubItems.Add( TCOmprobante(ListaActiva.objects[Item.Index]).Cae) ;
+   SubItems.add( TCOmprobante(ListaActiva.objects[Item.Index]).CodEstado );
+   end;
+end;
+
+procedure TFmListaComprobVta.PopupMenu1Change(Sender: TObject;
+  Source: TMenuItem; Rebuild: Boolean);
+begin
+  TPopupMenu(Sender).Items.Checked := false;
+end;
+
+procedure TFmListaComprobVta.TB_EmailClick(Sender: TObject);
+var
+ Cliente : TCliente;
+ ArchivoNombre: String;
+
+begin
+  if not DialogoBox('¿Enviar por email al cliente ?','Envío de comprobantes', 1,1)  then
+   exit;
+
+  Cliente := Tcliente.Create;
+  Cliente.Id := StrToInt( ListView1.Items[ListView1.ItemIndex].SubItems[4]);
+  ClientesLeerCliente(Cliente);
+
+  if Cliente.email = ''  then
+   Begin
+    mensaje('El cliente no tiene el campo email cargado.','Envío de comprobantes',1);
+    exit;
+    end;
+
+
+  ArchivoNombre := ListView1.Items[ListView1.ItemIndex].SubItems[2]+'-'+ListView1.Items[ListView1.ItemIndex].SubItems[1] +'-'+ ListView1.Items[ListView1.ItemIndex].SubItems[5] ;
+  ArchivoNombre := ArchivoNombre +'.pdf';
+  if  ListView1.Items[ListView1.ItemIndex].SubItems[2] = 'RECIBO'  then
+    FmPrintComprob.ImprimirRecibo( StrToInt(ListView1.Items[ListView1.ItemIndex].Caption)) else
+     FmPrintComprob.ExportPDFComprobVta( StrToInt(ListView1.Items[ListView1.ItemIndex].Caption),  ArchivoNombre );
+
+  SendMail( Cliente.email, 'Envío de comprobante.', 'Buenos días. Adjuntamos comprobante. Saludos. ', ArchivoNombre);
+  Cliente.free;
+end;
+
+procedure TFmListaComprobVta.TB_GenComprobClick(Sender: TObject);
+begin
+  Bloqueo;
+  pn_GenComprob.Visible := true;
+  pn_GenComprob.BringToFront;
+  pn_GenComprob.top := 20;
+  pn_GenComprob.Left :=20;
+  lb_NroCompNuevo.caption := 'Crear nuevo comprobante en base a: '+ Listview1.items[Listview1.ItemIndex].SubItems[0]+'-'+Listview1.items[Listview1.ItemIndex].SubItems[1]+'-'+Listview1.items[Listview1.ItemIndex].SubItems[2];
+  CB_TipoComprVta.ItemIndex := 0;
+end;
+
+procedure TFmListaComprobVta.Tb_PDFClick(Sender: TObject);
+var
+  ArchivoNombre: String;
+begin
+ ArchivoNombre := ListView1.Items[ListView1.ItemIndex].SubItems[2]+'-'+ListView1.Items[ListView1.ItemIndex].SubItems[1] +'-'+ ListView1.Items[ListView1.ItemIndex].SubItems[5] ;
+ ArchivoNombre := ArchivoNombre +'.pdf';
+
+ if  ListView1.Items[ListView1.ItemIndex].SubItems[2] = 'RECIBO'  then
+     FmPrintComprob.ImprimirRecibo( StrToInt(ListView1.Items[ListView1.ItemIndex].Caption)) else
+     FmPrintComprob.ExportPDFComprobVta( StrToInt(ListView1.Items[ListView1.ItemIndex].Caption),  ArchivoNombre );
+
+ ShellExecute(Handle, 'OPEN',pchar('explorer.exe'),pchar('/select, "' +  AjusteObj.CarpExportacion+'\'+ArchivoNombre + '"'), nil,   SW_NORMAL);
+end;
+
+procedure TFmListaComprobVta.TB_ReadDBClick(Sender: TObject);
+var
+ CantReg : string;
+begin
+
+ If PopupMenu1.Items[0].Checked then CantReg := '100';
+ If PopupMenu1.Items[1].Checked then CantReg := '200';
+ If PopupMenu1.Items[2].Checked then CantReg := '300';
+ If PopupMenu1.Items[3].Checked then CantReg := '';
+
+ ListaCompleta.Clear;
+ ComprobVtaLeerListado(ListaCompleta,CB_TipoComprVta.text, CB_Estado.TEXT, CantReg );
+
+ ApplyFilter(Ed_busqNro.Text);
+// ListView1.ItemIndex := 0;
+end;
+
+procedure TFmListaComprobVta.TM_DeleteClick(Sender: TObject);
+begin
+ if DialogoBox('¿Confirma borrar el comprobante ID: '+ Listview1.items[Listview1.ItemIndex].Caption +' ?','Borrar Comprobante', 1,1)  then
+  Begin
+   ComprobVtaBorrar(StrToInt(ListView1.Items[ListView1.ItemIndex].Caption));
+   Listview1.items.BeginUpdate;
+   ListaActiva.Delete(Listview1.ItemIndex);
+   Listview1.items.Count := ListaActiva.Count;
+      Listview1.items.EndUpdate;
+  End;
+end;
+
+procedure TFmListaComprobVta.ToolButton1Click(Sender: TObject);
+var
+  sl: TStringlist;
+ i, k: integer;
+ s: string;
+  item: TListItem;
+ begin
+    sl:= TStringlist.Create;
+    try
+      For i := 0 To ListView1.items.count-1 Do Begin
+        item := ListView1.Items[i];
+        S:= item.Caption;
+        For k := 0 To item.SubItems.Count-1 Do
+          S:= S + #9 + item.Subitems[k];
+        sl.Add( S );
+      End; { For }
+      Clipboard.AsText := sl.Text;
+    finally
+      sl.free
+    end;
+end;
+
+procedure TFmListaComprobVta.TB_CombiarEstadoClick(Sender: TObject);
+begin
+  Bloqueo;
+  Pn_ActEstado.Visible := true;
+  Pn_ActEstado.BringToFront;
+  Pn_ActEstado.top := 20;
+  Pn_ActEstado.Left :=20;
+  lb_nroCompEstado.caption :=  Listview1.items[Listview1.ItemIndex].SubItems[0]+'-'+Listview1.items[Listview1.ItemIndex].SubItems[1]+'-'+Listview1.items[Listview1.ItemIndex].SubItems[2];
+
+end;
+
+procedure TFmListaComprobVta.TB_PrintClick(Sender: TObject);
+begin
+ if ListView1.Items[ListView1.ItemIndex].SubItems[2] = 'RECIBO'  then
+     FmPrintComprob.ImprimirRecibo( StrToInt(ListView1.Items[ListView1.ItemIndex].Caption)) else
+     FmPrintComprob.ImprimirComprobVta( StrToInt(ListView1.Items[ListView1.ItemIndex].Caption));
+end;
+
+end.
+

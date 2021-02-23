@@ -1,0 +1,177 @@
+unit comprobvtaTipos;
+
+interface
+
+uses
+ Vcl.Graphics,
+ SysUtils,forms,WinTypes, Classes, Contnrs,WideStrings,
+ FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
+  FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, FireDAC.Comp.DataSet,
+   FireDAC.Comp.Client
+ ;
+
+const
+ M = 40;
+ msg1 = 'Texto encriptado';
+
+Type
+  TComprobVtaTipos = class(Tobject)
+    Id_tipocompr : String[20];
+    descripcion : string[80];
+    Tipo_Debcred: string[10];
+    Tipo_Stock  : string[10];
+    Incl_IVA    : string[10];
+    letra       : string[3];
+    Cod_Afip    : string[10];
+  end;
+
+
+Procedure TiposComprobVtaLeerListado(Lista : TStringList );
+Procedure TiposComprobVtaLeerComprob(TipoCOmprob : TComprobVtaTipos );
+
+Procedure TiposComprobVta_UpdateDb( TipoCOmprob : TComprobVtaTipos );
+Procedure TiposComprobVta_DeleteDb( Id : String);
+Procedure TiposComprobVta_InsertDb( TipoCOmprob : TComprobVtaTipos );
+
+Procedure TiposComprobVta_ObtCodAFIP( Id_TipoCompr : String; var CodAfip : String );
+
+
+
+Implementation
+uses
+ main,UtilsFunc,importsdll;
+
+Procedure TiposComprobVtaLeerListado(Lista : TStringList );
+var
+  Tabla : TFDquery ;
+  Comprob_Vta_Tipo : TComprobVtaTipos;
+begin
+ Tabla := TFDquery.Create(Application);
+ Tabla.Connection := FmMain.FDConnection1;
+ Tabla.SQL.add('SELECT * FROM comprob_vta_tipos order by Descripcion');
+ Tabla.open;
+
+ while not Tabla.EOF do
+  begin
+    Comprob_Vta_Tipo := TComprobVtaTipos.create ;
+    Comprob_Vta_Tipo.Id_tipocompr := Tabla.FieldByName('Id').AsString ;
+    Comprob_Vta_Tipo.Descripcion := Tabla.FieldByName('Descripcion').AsString ;
+    Comprob_Vta_Tipo.Tipo_Debcred := Tabla.FieldByName('Tipo_Debcred').AsString ;
+    Comprob_Vta_Tipo.Tipo_Stock := Tabla.FieldByName('Tipo_Stock').AsString;
+    Comprob_Vta_Tipo.Incl_IVA := Tabla.FieldByName('Incluye_IVA').AsString;
+    Comprob_Vta_Tipo.Cod_Afip := Tabla.FieldByName('cod_afip').AsString;
+    Comprob_Vta_Tipo.letra := Tabla.FieldByName('letra').AsString;
+  //if Tabla.FieldByName('Id').AsString <> 'RECIBO' then
+     Lista.AddObject(Tabla.FieldByName('Id').AsString, Comprob_Vta_Tipo);
+   Tabla.next;
+  end;
+ Tabla.close;
+ Tabla.Destroy;
+end;
+
+Procedure TiposComprobVtaLeerComprob(TipoCOmprob : TComprobVtaTipos );
+var
+  Tabla : TFDquery;
+begin
+ Tabla := TFDquery.Create(Application);
+ Tabla.Connection := FmMain.FDConnection1;
+ Tabla.SQL.add('SELECT * FROM comprob_vta_tipos WHERE  Id='+ QuotedStr(TipoCOmprob.Id_tipocompr) );
+ Tabla.open;
+
+    TipoCOmprob.Id_tipocompr := Tabla.FieldByName('Id').AsString ;
+    TipoCOmprob.Descripcion := Tabla.FieldByName('Descripcion').AsString ;
+    TipoCOmprob.Tipo_Debcred := Tabla.FieldByName('Tipo_Debcred').AsString ;
+    TipoCOmprob.Tipo_Stock := Tabla.FieldByName('Tipo_Stock').AsString;
+    TipoCOmprob.Incl_IVA := Tabla.FieldByName('Incluye_IVA').AsString;
+    TipoCOmprob.Cod_Afip := Tabla.FieldByName('cod_afip').AsString;
+    TipoCOmprob.letra := Tabla.FieldByName('letra').AsString;
+
+ Tabla.close;
+ Tabla.Destroy;
+end;
+
+Procedure TiposComprobVta_UpdateDb( TipoCOmprob : TComprobVtaTipos );
+var
+ Tabla : TFDquery;
+begin
+ try
+  Tabla := TFDquery.Create(Application);
+  Tabla.Connection := FmMain.FDConnection1;
+  Tabla.SQL.Clear;
+   Tabla.SQL.ADD('Update comprob_vta_tipos Set Id='+ QuotedStr(TipoCOmprob.Id_tipocompr) );
+   Tabla.SQL.ADD(', descripcion='+ QuotedStr(TipoCOmprob.descripcion) );
+   Tabla.SQL.ADD(', tipo_debcred='+ QuotedStr(TipoCOmprob.Tipo_Debcred) );
+   Tabla.SQL.ADD(', tipo_stock='+ QuotedStr(TipoCOmprob.tipo_stock) );
+   Tabla.SQL.ADD(', incluye_iva='+ QuotedStr(TipoCOmprob.Incl_IVA) );
+   Tabla.SQL.ADD(', letra='+ QuotedStr(TipoCOmprob.letra) );
+   Tabla.SQL.ADD(', cod_afip='+ QuotedStr(TipoCOmprob.Cod_Afip) );
+   Tabla.SQL.ADD(' Where Id='+ QuotedStr(TipoCOmprob.Id_tipocompr) );
+   Tabla.ExecSQL;
+ except
+   on E : Exception do
+    Mensaje('Error actualizando Tipo de comprobante. Clase = '+E.ClassName +' Error mensaje = '+E.Message ,'Error',2 );
+ end;
+  Tabla.Free;
+end;
+Procedure TiposComprobVta_InsertDb( TipoCOmprob : TComprobVtaTipos );
+var
+ Tabla : TFDquery;
+begin
+ try
+  Tabla := TFDquery.Create(Application);
+  Tabla.Connection := FmMain.FDConnection1;
+  Tabla.SQL.Clear;
+   Tabla.SQL.ADD('Insert into  comprob_vta_tipos(Id,descripcion,tipo_debcred,tipo_stock,incluye_iva,letra,cod_afip) values( ' );
+   Tabla.SQL.ADD( QuotedStr(TipoCOmprob.Id_tipocompr) +',');
+   Tabla.SQL.ADD( QuotedStr(TipoCOmprob.descripcion) +',' );
+   Tabla.SQL.ADD( QuotedStr(TipoCOmprob.Tipo_Debcred) +',' );
+   Tabla.SQL.ADD( QuotedStr(TipoCOmprob.tipo_stock)  +',');
+   Tabla.SQL.ADD( QuotedStr(TipoCOmprob.Incl_IVA)  +',');
+   Tabla.SQL.ADD( QuotedStr(TipoCOmprob.letra)  +',');
+   Tabla.SQL.ADD( QuotedStr(TipoCOmprob.Cod_Afip) +')' );
+   Tabla.ExecSQL;
+ except
+   on E : Exception do
+    Mensaje('Error insertando Tipo de comprobante. Clase = '+E.ClassName +' Error mensaje = '+E.Message ,'Error',2 );
+ end;
+  Tabla.Free;
+end;
+
+Procedure TiposComprobVta_DeleteDb( Id : String);
+var
+ Tabla : TFDquery;
+begin
+ try
+  Tabla := TFDquery.Create(Application);
+  Tabla.Connection := FmMain.FDConnection1;
+  Tabla.SQL.Clear;
+  Tabla.SQL.ADD('DELETE FROM comprob_vta_tipos Where id='+ QuotedStr(Id) );
+   Tabla.ExecSQL;
+ except
+   on E : Exception do
+    Mensaje('Error borrando Tipo de comprobante. Clase = '+E.ClassName +' Error mensaje = '+E.Message ,'Error',2 );
+ end;
+  Tabla.Free;
+end;
+
+
+Procedure TiposComprobVta_ObtCodAFIP( Id_TipoCompr : String; var CodAfip : String );
+var
+  Tabla : TFDquery;
+  Comprob_Vta_Tipo : TComprobVtaTipos;
+begin
+ Tabla := TFDquery.Create(Application);
+ Tabla.Connection := FmMain.FDConnection1;
+ Tabla.SQL.add('SELECT * FROM comprob_vta_tipos where Id_tipocompr='+QuotedStr(Id_TipoCompr) );
+ Tabla.open;
+ If Tabla.recordcount > 0 then
+   CodAfip := Tabla.FieldByName('cod_afip').AsString  else
+   mensaje('El c�gido de AFIP del comprobantes no se encuentra. Tipo de comp.: '+Id_TipoCompr , 'Codigo AFIP', 3);
+
+ Tabla.close;
+ Tabla.Destroy;
+end;
+
+
+end.
+

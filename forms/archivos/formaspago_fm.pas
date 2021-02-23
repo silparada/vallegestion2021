@@ -1,0 +1,337 @@
+
+unit formaspago_fm;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  System.IOUtils,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  Vcl.Imaging.jpeg, System.ImageList, Vcl.ImgList,
+  Vcl.WinXCtrls, Vcl.WinXPickers, Vcl.ToolWin, Vcl.StdCtrls, Vcl.Buttons,
+  Vcl.ExtCtrls, Vcl.ComCtrls, Data.DB, frxClass, frxDBSet,
+  Vcl.Samples.Spin, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
+  FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
+  FireDAC.Comp.DataSet, FireDAC.Comp.Client;
+
+
+type
+  TFmFormasPago = class(TForm)
+    ToolBar1: TToolBar;
+    TB_readdb: TToolButton;
+    TB_add: TToolButton;
+    TB_edit: TToolButton;
+    TB_Delete: TToolButton;
+    ListView1: TListView;
+    Panel2: TPanel;
+    Ed_busqueda: TEdit;
+    Pn_EditAdd: TPanel;
+    Ed_Id: TEdit;
+    Label1: TLabel;
+    Label2: TLabel;
+    Ed_Descripcion: TEdit;
+    CV_Activo: TCheckBox;
+    Label3: TLabel;
+    Bc_Aceptar: TBitBtn;
+    BC_Cancelar: TBitBtn;
+    TS_SoloActivos: TToggleSwitch;
+    StatusBar1: TStatusBar;
+    TB_Print: TToolButton;
+    Pn_Imprimir: TPanel;
+    frxReport1: TfrxReport;
+    BC_AceptarPrint: TBitBtn;
+    BC_CancelarPrint: TBitBtn;
+    CV_PrintSoloActivos: TCheckBox;
+    frxDBDataset1: TfrxDBDataset;
+    Ed_DiasVto: TSpinEdit;
+    FDQuery1: TFDQuery;
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure TB_DeleteClick(Sender: TObject);
+    procedure TB_readdbClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure ListView1Data(Sender: TObject; Item: TListItem);
+    procedure Ed_busquedaChange(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure d3_ListViewCustomDrawItem(Sender: TCustomListView;
+      Item: TListItem; State: TCustomDrawState; var DefaultDraw: Boolean);
+    procedure Bc_AceptarClick(Sender: TObject);
+    procedure TB_editClick(Sender: TObject);
+    procedure BC_CancelarClick(Sender: TObject);
+    procedure TB_addClick(Sender: TObject);
+    procedure BC_AceptarPrintClick(Sender: TObject);
+    procedure BC_CancelarPrintClick(Sender: TObject);
+    procedure TB_PrintClick(Sender: TObject);
+    procedure ListView1DblClick(Sender: TObject);
+  private
+    { Private declarations }
+    procedure ApplyFilter(const S: string);
+    procedure Bloqueo;
+    procedure DesBloqueo;
+  public
+    { Public declarations }
+  end;
+
+var
+  FmFormasPago: TFmFormasPago;
+
+implementation
+{$R *.dfm}
+
+uses
+ //Class;
+   FormasPago,eventos,
+   main, UtilsFunc,rp_utils,importsdll ;
+
+var
+
+  ListaActiva : TStringList;
+  ListaCompleta : TStringList;
+  bm: TBitmap;
+  pn: TPanel;
+  img: TImage;
+  Editar : Boolean;
+
+procedure TFmFormasPago.Bloqueo;
+begin
+  //FmClientes
+  BorderStyle := bsSingle;
+  bm := GetFormImage;
+  FadeBitmap(bm);
+  pn := TPanel.Create(nil);
+  img := TImage.Create(nil);
+  img.Parent := pn;
+     pn.BoundsRect := ClientRect;
+     pn.BevelOuter := bvNone;
+     img.Align := alClient;
+     img.Picture.Bitmap.Assign(bm);
+     pn.Parent := Self;
+end;
+procedure TFmFormasPago.DesBloqueo;
+begin
+  img.Free;
+  pn.Free;
+  bm.Free;
+  BorderStyle := bsSizeable;
+end;
+
+procedure TFmFormasPago.ApplyFilter(const S: string);
+var
+  I: Integer;
+begin
+  ListView1.Items.BeginUpdate;
+  try
+    ListView1.Clear;
+    ListaActiva.Clear;
+    //SHOWMESSAGE('OKA');
+    for I := 0 to ListaCompleta.Count - 1 do
+      if (S = '') or (Pos(UpperCase(S), UpperCase(ListaCompleta[i]) )  <> 0 ) then
+        ListaActiva.AddObject(ListaCompleta[I], ListaCompleta.Objects[i] );
+    ListView1.Items.Count := ListaActiva.Count;
+  finally
+    ListView1.Items.EndUpdate;
+  end;
+  StatusBar1.Panels[0].Text :=  'Registros: '+IntToStr(ListView1.Items.Count);
+end;
+
+
+procedure TFmFormasPago.Bc_AceptarClick(Sender: TObject);
+var
+ Formapago : TFormapago;
+begin
+  Formapago := TFormapago.create ;
+
+  Formapago.Id := Ed_Id.Text;
+  Formapago.Descripcion := Ed_Descripcion.Text;
+  Formapago.Activo :=  CV_Activo.Checked;
+  Formapago.DiasVto :=  Ed_DiasVto.value;
+ // Rubro.Observaciones := Me_Observaciones.Text;
+
+  if EDITAR then
+   Begin
+    FormapagoEditar(Formapago);
+    ListaActiva.Objects[ListView1.ItemIndex] := Usuario;
+    EventosAgregar('Editar usuario '+ Ed_Id.text  );
+   End
+  else
+   Begin
+    FormapagoAgregar(Formapago);
+    ListaCompleta.AddObject(Formapago.Descripcion, Formapago);
+    ListaActiva.AddObject(Formapago.Descripcion, Formapago);
+    ListView1.Items.Count := ListaActiva.Count;
+    StatusBar1.Panels[0].text := 'Registros: '+ IntToStr(ListaActiva.Count);
+   End;
+
+
+ Formapago.free;
+
+ screen.Cursor := crDefault;
+ Desbloqueo;
+ Pn_EditAdd.Visible := false;
+end;
+
+procedure TFmFormasPago.BC_CancelarClick(Sender: TObject);
+begin
+ desbloqueo;
+ Pn_EditAdd.Visible := false;
+end;
+
+procedure TFmFormasPago.BC_CancelarPrintClick(Sender: TObject);
+begin
+ desbloqueo;
+ Pn_Imprimir.Visible := false;
+end;
+
+procedure TFmFormasPago.BC_AceptarPrintClick(Sender: TObject);
+begin
+
+  FDQuery1.close;
+
+  FDQuery1.sql.add('SELECT * FROM formaspago');
+  if CV_PrintSoloActivos.Checked then
+     FDQuery1.sql.add(' WHERE activo=TRUE');
+
+  FDQuery1.sql.add(' ORDER BY descripcion');
+  frxReport1.LoadFromFile( AjusteObj.CarpReportes + '\formaspago.fr3')   ;
+
+  FDQuery1.open;
+  SetUpReporte(frxReport1,'Formaspago');
+
+ // TfrxGroupHeader(frxReport1.FindObject('GroupHeader1')).StartNewPage := CV_PrintPagJuntos.Checked ;
+
+  frxReport1.ShowReport;
+
+  Desbloqueo;
+  Pn_imprimir.Visible := false;
+end;
+
+procedure TFmFormasPago.d3_ListViewCustomDrawItem(Sender: TCustomListView;
+  Item: TListItem; State: TCustomDrawState; var DefaultDraw: Boolean);
+begin
+  if Odd(Item.Index) then
+    // odd list items have green background
+    Sender.Canvas.Brush.Color := clsilver
+  else
+    // even list items have window colour background
+    Sender.Canvas.Brush.Color := clWindow;
+  DefaultDraw := true;
+end;
+
+procedure TFmFormasPago.Ed_busquedaChange(Sender: TObject);
+begin
+  ApplyFilter((Sender as TEdit).Text);
+end;
+
+procedure TFmFormasPago.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  action := cafree;
+end;
+
+procedure TFmFormasPago.FormCreate(Sender: TObject);
+begin
+ ListaCompleta := TStringList.create;
+ ListaActiva := TStringList.Create;
+ TB_readdb.Click;
+end;
+
+
+procedure TFmFormasPago.FormDestroy(Sender: TObject);
+begin
+  ListaCompleta.Free;
+  ListaActiva.Free;
+end;
+
+
+
+procedure TFmFormasPago.ListView1Data(Sender: TObject; Item: TListItem);
+begin
+  with Item do
+   begin
+   Caption :=  TFormaPago(ListaActiva.objects[Item.Index]).Id;
+   SubItems.Add( TFormaPago(ListaActiva.objects[Item.Index]).descripcion );
+   SubItems.Add( IntToStr(TFormaPago(ListaActiva.objects[Item.Index]).diasVto) );
+   end;
+end;
+
+procedure TFmFormasPago.ListView1DblClick(Sender: TObject);
+begin
+ TB_editClick(Sender);
+end;
+
+procedure TFmFormasPago.TB_readdbClick(Sender: TObject);
+begin
+ ListaCompleta.Clear;
+  if TS_SoloActivos.State = tssOn then    // solo activos
+   FormaPagoLeerListado(ListaCompleta, 'activo')
+ else
+   FormaPagoLeerListado(ListaCompleta, 'Todos');
+ Ed_busqueda.Text := '';
+ ApplyFilter(Ed_busqueda.Text);
+ if ListView1.Items.Count > 0 then
+   ListView1.ItemIndex := 0;
+
+end;
+
+procedure TFmFormasPago.TB_PrintClick(Sender: TObject);
+begin
+   Bloqueo;
+   Pn_Imprimir.Visible := true;
+   Pn_Imprimir.BringToFront;
+end;
+
+procedure TFmFormasPago.TB_addClick(Sender: TObject);
+begin
+  Editar := false;
+  Bloqueo;
+  Pn_EditAdd.Visible := true;
+  Pn_EditAdd.BringToFront;
+
+  Ed_Id.Enabled := true;
+  Ed_Id.text := '';
+  Ed_Descripcion.Text := '';
+  Ed_DiasVto.Value := 0;
+end;
+
+procedure TFmFormasPago.TB_DeleteClick(Sender: TObject);
+var
+ Id : String;
+begin
+ Id :=  Listview1.items[Listview1.ItemIndex].Caption;
+
+ if DialogoBox('¿Confirma borrar la forma de pago : '+ Listview1.items[Listview1.ItemIndex].Caption +' ?','Borrar Forma pago', 1,1)  then
+  IF FormaPagoBorrar(Id) Then
+   BEgin
+    //ListaActiva.Delete(Listview1.ItemIndex);
+    TFormaPago(ListaActiva.objects[Listview1.ItemIndex]).Descripcion  := '**** BORRADO ******';
+    Listview1.items.Count := ListaActiva.Count;
+
+   End;
+
+end;
+
+procedure TFmFormasPago.TB_editClick(Sender: TObject);
+var
+  FormaPago : TFormaPago;
+  i : integer;
+begin
+   Editar := true;
+   Bloqueo;
+
+   Pn_EditAdd.Visible := true;
+   Pn_EditAdd.BringToFront;
+
+   FormaPago := TFormaPago.create;
+   FormaPago.Id :=  Listview1.items[Listview1.ItemIndex].Caption;
+   FormaPagoLeerFormaPago(FormaPago);
+
+   Ed_Id.Enabled := false;
+   Ed_Id.text := FormaPago.Id;
+   Ed_Descripcion.Text := FormaPago.Descripcion;
+   If FormaPago.activo then CV_Activo.State := cbChecked else  CV_Activo.State := cbUnchecked;
+   Ed_DiasVto.value :=   FormaPago.DiasVto;
+
+   FormaPago.Free;
+
+end;
+
+end.
+

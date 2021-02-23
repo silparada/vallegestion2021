@@ -1,0 +1,237 @@
+unit ArticulosMovim_fm;
+
+interface
+
+uses
+  SysUtils,WinTypes,WinProcs,Graphics,DBCtrls, StdCtrls,
+  DB,  Buttons,Mask,  ExtCtrls,Controls,  Classes,Forms,
+  dialogs, jpeg, ComCtrls, ADODB, Grids, DBGrids, ToolWin;
+
+type
+  TFmArticulosMovim = class(TForm)
+    Label15: TLabel;
+    ListView1: TListView;
+    ToolBar1: TToolBar;
+    TB_readdb: TToolButton;
+    ToolButton2: TToolButton;
+    Pn_EditAdd: TPanel;
+    ToolButton3: TToolButton;
+    ToolButton5: TToolButton;
+    ToolButton8: TToolButton;
+    Ed_Comprobante: TEdit;
+    Ed_Nombre: TEdit;
+    Ed_Fecha: TDateTimePicker;
+    GOP_Tipo: TRadioGroup;
+    Ed_Precio: TEdit;
+    Ed_Cantidad: TEdit;
+    Panel2: TPanel;
+    Ed_busqueda: TEdit;
+    ToolButton1: TToolButton;
+    Bc_Aceptar: TBitBtn;
+    BC_Cancelar: TBitBtn;
+    Ed_IdArticulo: TEdit;
+    procedure BC_CerrarClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure TB_readdbClick(Sender: TObject);
+    procedure ToolButton2Click(Sender: TObject);
+    procedure ToolButton3Click(Sender: TObject);
+    procedure ToolButton5Click(Sender: TObject);
+    procedure ListView1Data(Sender: TObject; Item: TListItem);
+    procedure FormCreate(Sender: TObject);
+    procedure ToolButton8Click(Sender: TObject);
+    procedure Bc_AceptarClick(Sender: TObject);
+    procedure Ed_busquedaChange(Sender: TObject);
+  private
+    { Private declarations }
+    procedure ApplyFilter(const S: string);
+     procedure Bloqueo;
+    procedure DesBloqueo;
+  public
+    { Public declarations }
+  end;
+var
+  FmArticulosMovim : TFmArticulosMovim;
+
+
+
+procedure ShowMovimArticulos(IdArticulo : String );
+
+implementation
+{$R *.DFM}
+uses
+  articulosmovim,   importsdll,
+  UtilsFunc,Articulos,main,EAN13Util;
+var
+ // Consulta : TAdoDataset;
+  ListaCompleta : TStringList;
+  ListaActiva : TStringList;
+  bm: TBitmap;
+  pn: TPanel;
+  img: TImage;
+  Editar : Boolean;
+  ActPrecio :boolean;
+
+procedure TFmArticulosMovim.Bloqueo;
+begin
+  bm := GetFormImage;
+  FadeBitmap(bm);
+  pn := TPanel.Create(nil);
+  img := TImage.Create(nil);
+  img.Parent := pn;
+     pn.BoundsRect := ClientRect;
+     pn.BevelOuter := bvNone;
+     img.Align := alClient;
+     img.Picture.Bitmap.Assign(bm);
+     pn.Parent := Self;
+end;
+procedure TFmArticulosMovim.DesBloqueo;
+begin
+  img.Free;
+  pn.Free;
+  bm.Free;
+end;
+
+procedure TFmArticulosMovim.Ed_busquedaChange(Sender: TObject);
+begin
+ ApplyFilter((Sender as TEdit).Text);
+end;
+
+procedure ShowMovimArticulos(IdArticulo : String );
+var
+   FmArticulosMovim : TFmArticulosMovim;
+begin
+   FmArticulosMovim := TFmArticulosMovim.create(Application);
+//   FmArticulosMovim.ED_IdArticulo.text := IdArticulo;
+   //FmArticulosMovim.ToolButton1Click(nil);
+   FmArticulosMovim.showModal;
+end;
+
+procedure TFmArticulosMovim.ApplyFilter(const S: string);
+var
+  I: Integer;
+begin
+  ListView1.Items.BeginUpdate;
+  try
+    ListView1.Clear;
+    ListaActiva.Clear;
+    for I := 0 to ListaCompleta.Count - 1 do
+      if (S = '') or (Pos(UpperCase(S), UpperCase(ListaCompleta[i]) )  <> 0 ) then
+        ListaActiva.AddObject(ListaCompleta[I], ListaCompleta.Objects[i] );
+    ListView1.Items.Count := ListaActiva.Count;
+  finally
+    ListView1.Items.EndUpdate;
+  end;
+// StatusBar1.Panels[0].Text :=  'Registros: '+IntToStr(ListView1.Items.Count);
+end;
+
+procedure TFmArticulosMovim.Bc_AceptarClick(Sender: TObject);
+var
+ MovimArtic : TMovimArtic;
+ IngEgr : String[1];
+begin
+  MovimArtic := TMovimArtic.create ;
+  If GOP_Tipo.itemIndex = 0 then MovimArtic.EntSal  := 'I' else  MovimArtic.EntSal  := 'S';
+  MovimArtic.IdArticulo := Ed_IDArticulo.text;
+
+
+  MovimArtic.nombre := Ed_Nombre.text;
+  MovimArtic.comprobante := Ed_comprobante.text;
+  MovimArtic.fecha := Ed_Fecha.date;  ;
+  MovimArtic.Precio :=  StrToFloat(Ed_Precio.text);
+  MovimArtic.Cantidad :=  StrToFloat(Ed_Cantidad.text);
+  screen.Cursor := crSQLWait;
+  IngEgr := MovimArtic.EntSal;
+
+ screen.Cursor := crDefault;
+
+end;
+
+procedure TFmArticulosMovim.BC_CerrarClick(Sender: TObject);
+begin
+   Close;
+end;
+
+procedure TFmArticulosMovim.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  Action := caFree;
+end;
+
+procedure TFmArticulosMovim.FormCreate(Sender: TObject);
+begin
+ ListaCompleta := TStringList.create;
+ ListaActiva := TStringList.Create;
+ TB_readdb.Click;
+end;
+
+procedure TFmArticulosMovim.ListView1Data(Sender: TObject; Item: TListItem);
+begin
+  with Item do
+   begin
+    Caption := IntToStr(TMovimArtic(ListaActiva.objects[Item.Index]).IdMovimiento);
+    SubItems.Add( TMovimArtic(ListaActiva.objects[Item.Index]).EntSal);
+    SubItems.Add( DateToStr(TMovimArtic(ListaActiva.objects[Item.Index]).fecha));
+    SubItems.Add( TMovimArtic(ListaActiva.objects[Item.Index]).Comprobante);
+    SubItems.Add( TMovimArtic(ListaActiva.objects[Item.Index]).nombre);
+    SubItems.Add( FloatToStrF(TMovimArtic(ListaActiva.objects[Item.Index]).Precio , ffFixed,18,2));
+    SubItems.Add( FloatToStrF(TMovimArtic(ListaActiva.objects[Item.Index]).cantidad, ffFixed,18,2));
+   end;
+
+end;
+
+procedure TFmArticulosMovim.TB_readdbClick(Sender: TObject);
+begin
+  MovimArticuloLeerListado(ED_IdArticulo.text, ListaCompleta);
+  Ed_busqueda.Text := '';
+  ApplyFilter(Ed_busqueda.Text);
+  ListView1.Items.Count := ListaCompleta.Count;
+
+end;
+
+procedure TFmArticulosMovim.ToolButton2Click(Sender: TObject);
+begin
+ close;
+end;
+
+procedure TFmArticulosMovim.ToolButton3Click(Sender: TObject);
+begin
+   Editar := false;
+   Bloqueo;
+   Pn_EditAdd.Visible := true;
+   Pn_EditAdd.BringToFront;
+
+   Ed_comprobante.text := '';
+   Ed_nombre.text := '';
+   Ed_Fecha.DateTime := now;
+   Ed_Precio.text := '0';
+   Ed_Cantidad.text := '0';
+   GOP_Tipo.ItemIndex := 0;
+end;
+
+procedure TFmArticulosMovim.ToolButton5Click(Sender: TObject);
+begin
+   Editar := true;
+   Bloqueo;
+   Pn_EditAdd.Visible := true;
+   Pn_EditAdd.BringToFront;
+
+   Ed_comprobante.text :=  Listview1.items[Listview1.ItemIndex].Caption;
+   Ed_nombre.text :=  Listview1.items[Listview1.ItemIndex].SubItems[3];
+  // Ed_Fecha.Date :=  //Listview1.items[Listview1.ItemIndex].SubItems[1];
+   Ed_Precio.text :=   Listview1.items[Listview1.ItemIndex].SubItems[4];
+   Ed_Cantidad.text :=   Listview1.items[Listview1.ItemIndex].SubItems[5];
+   if Listview1.items[Listview1.ItemIndex].SubItems[0] = 'E' then
+       GOP_Tipo.ItemIndex := 0 else  GOP_Tipo.ItemIndex := 1;
+
+end;
+
+procedure TFmArticulosMovim.ToolButton8Click(Sender: TObject);
+var
+ IdMovim : LongInt;
+begin
+ IdMovim :=  StrToInt(Listview1.items[Listview1.ItemIndex].Caption);
+ if DialogoBox('¿Confirma borrar el movimiento: '+ Listview1.items[Listview1.ItemIndex].Caption +' ?','Borrar Movimiento', 1,1)  then
+  MovimArticuloBorrar(IdMovim);
+end;
+
+end.

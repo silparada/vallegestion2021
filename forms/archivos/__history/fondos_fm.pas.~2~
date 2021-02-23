@@ -1,0 +1,396 @@
+unit fondos_fm;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ComCtrls, StdCtrls, Buttons, DB, ADODB, ExtCtrls, ToolWin, Menus,
+   frxClass, frxExportPDF, frxExportBaseDialog;
+
+type
+  TFmFondos = class(TForm)
+    ToolBar1: TToolBar;
+    Tb_ReadDb: TToolButton;
+    TB_Print: TToolButton;
+    ListView1: TListView;
+    Panel3: TPanel;
+    Tb_Exit: TToolButton;
+    Ed_busqueda: TEdit;
+    Panel1: TPanel;
+    Efectivo: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
+    Label5: TLabel;
+    Label6: TLabel;
+    Label7: TLabel;
+    Ed_Saldo: TEdit;
+    Ed_SaldoEfe: TEdit;
+    Ed_SaldoChe: TEdit;
+    Ed_SaldoTarj: TEdit;
+    Ed_SaldoBco: TEdit;
+    Ed_SaldoOtro: TEdit;
+    TB_Add: TToolButton;
+    Tb_Delete: TToolButton;
+    Pn_EditAdd: TPanel;
+    Label8: TLabel;
+    Label9: TLabel;
+    Label12: TLabel;
+    Label13: TLabel;
+    Ed_Importe: TEdit;
+    Ed_Descripcion: TEdit;
+    Ed_Observ: TEdit;
+    Ed_Fecha: TDateTimePicker;
+    Ed_Comprobante: TEdit;
+    GOP_IngEgr: TRadioGroup;
+    Ed_Id: TEdit;
+    IdMovim: TLabel;
+    Label15: TLabel;
+    Ed_FechaDesde: TDateTimePicker;
+    Ed_FechaHasta: TDateTimePicker;
+    Label11: TLabel;
+    Label14: TLabel;
+    Tb_Edit: TToolButton;
+    Ed_IdComprob: TEdit;
+    Label16: TLabel;
+    frxReport1: TfrxReport;
+    StringDS: TfrxUserDataSet;
+    frxPDFExport1: TfrxPDFExport;
+    StatusBar1: TStatusBar;
+    Bc_Aceptar: TBitBtn;
+    BC_Cancelar: TBitBtn;
+    Label1: TLabel;
+    procedure Tb_ReadDbClick(Sender: TObject);
+    procedure Tb_ExitClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormCreate(Sender: TObject);
+    procedure ListView1CustomDrawItem(Sender: TCustomListView; Item: TListItem;
+      State: TCustomDrawState; var DefaultDraw: Boolean);
+    procedure ListView1Data(Sender: TObject; Item: TListItem);
+    procedure Tb_DeleteClick(Sender: TObject);
+    procedure TB_PrintClick(Sender: TObject);
+    procedure StringDSGetValue(const VarName: string; var Value: Variant);
+    procedure Ed_busquedaChange(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure Tb_EditClick(Sender: TObject);
+    procedure Bc_AceptarClick(Sender: TObject);
+    procedure BC_CancelarClick(Sender: TObject);
+    procedure TB_AddClick(Sender: TObject);
+    procedure ListView1DblClick(Sender: TObject);
+  private
+    { Private declarations }
+    procedure DesBloqueo;
+    procedure Bloqueo;
+    procedure ApplyFilter(const S: string);
+    procedure CalcularTotales;
+  public
+    { Public declarations }
+  end;
+
+var
+  FmFondos: TFmFondos;
+
+implementation
+    uses
+    fondos,
+    main,UtilsFunc, rp_utils,importsdll;
+{$R *.dfm}
+var
+ // BusqIndiceDesde : integer;
+  ListaActiva : TStringList;
+  ListaCompleta : TStringList;
+  bm: TBitmap;
+  pn: TPanel;
+  img: TImage;
+  Editar : Boolean;
+
+procedure TFmFondos.Bc_AceptarClick(Sender: TObject);
+var
+ Fondo : TFondo;
+ IdComp : LongInt;
+begin
+  Fondo := TFondo.create ;
+
+
+  Fondo.Fecha := Ed_Fecha.Date ;
+  //Fondo.Tipo := CB_Tipo.text;
+  Fondo.Descripcion := Ed_Descripcion.text;
+  Fondo.Comprobante := Ed_Comprobante.text;
+  Fondo.Importe := StrToFloat(Ed_Importe.text);
+  Fondo.Observaciones := Ed_Observ.text;
+  If GOP_IngEgr.ItemIndex = 0 then  Fondo.IngEgr := 'I' else Fondo.IngEgr := 'E';
+  if TryStrToInt(Ed_IdComprob.text, IdComp ) then
+   Fondo.IdComprobante := IdComp;
+
+
+
+  if EDITAR then
+   begin
+     Fondo.id := StrToInt(Ed_Id.text);
+     FondosEditar(Fondo)
+   end
+  else
+    FondosAgregar(Fondo);
+
+
+ Fondo.free;
+
+ screen.Cursor := crDefault;
+ Desbloqueo;
+ Pn_EditAdd.Visible := false;
+
+end;
+
+procedure TFmFondos.BC_CancelarClick(Sender: TObject);
+begin
+ desbloqueo;
+ Pn_EditAdd.Visible := false;
+end;
+
+procedure TFmFondos.Bloqueo;
+begin
+  //FmClientes
+  BorderStyle := bsSingle;
+  bm := GetFormImage;
+  FadeBitmap(bm);
+  pn := TPanel.Create(nil);
+  img := TImage.Create(nil);
+  img.Parent := pn;
+     pn.BoundsRect := ClientRect;
+     pn.BevelOuter := bvNone;
+     img.Align := alClient;
+     img.Picture.Bitmap.Assign(bm);
+     pn.Parent := Self;
+end;
+procedure TFmFondos.DesBloqueo;
+begin
+  img.Free;
+  pn.Free;
+  bm.Free;
+  BorderStyle := bsSizeable;
+end;
+
+procedure TFmFondos.ApplyFilter(const S: string);
+var
+  I: Integer;
+begin
+  ListView1.Items.BeginUpdate;
+  try
+    ListView1.Clear;
+    ListaActiva.Clear;
+    //SHOWMESSAGE('OKA');
+    for I := 0 to ListaCompleta.Count - 1 do
+      if (S = '') or (Pos(UpperCase(S), UpperCase(ListaCompleta[i]) )  <> 0 ) then
+        ListaActiva.AddObject(ListaCompleta[I], ListaCompleta.Objects[i] );
+    ListView1.Items.Count := ListaActiva.Count;
+  finally
+    ListView1.Items.EndUpdate;
+  end;
+  StatusBar1.Panels[0].Text :=  'Registros: '+IntToStr(ListView1.Items.Count);
+  CalcularTotales;
+end;
+
+procedure TFmFondos.CalcularTotales;
+var i: integer;
+   Saldo : Double;
+   Fondo :TFondo;
+begin
+
+  for I := 0 to ListaActiva.Count - 1 do
+   Begin
+    Fondo := TFondo(ListaActiva.Objects[i]);
+    if Fondo.IngEgr = 'I' then
+       Saldo := Saldo + Fondo.importe
+      else
+       Saldo := Saldo - Fondo.importe;
+    end;
+
+ Ed_Saldo.Text := FloatToStrF(Saldo, ffFixed,15,2);
+
+end;
+
+
+procedure TFmFondos.StringDSGetValue(const VarName: string; var Value: Variant);
+begin
+   if CompareText(VarName, 'IdMovim') = 0 then
+    Value := ListView1.Items[StringDS.RecNo].caption;
+   if CompareText(VarName, 'Fecha') = 0 then
+    Value := ListView1.Items[StringDS.RecNo].SubItems[0];
+   if CompareText(VarName, 'Tipo') = 0 then
+    Value := ListView1.Items[StringDS.RecNo].SubItems[1];
+   if CompareText(VarName, 'Descripcion') = 0 then
+    Value := ListView1.Items[StringDS.RecNo].SubItems[2];
+  if CompareText(VarName, 'Comprobante') = 0 then
+    Value := ListView1.Items[StringDS.RecNo].SubItems[3];
+   if CompareText(VarName, 'Importe') = 0 then
+    Value := StrToFloat(ListView1.Items[StringDS.RecNo].SubItems[4]);
+  if CompareText(VarName, 'I/E') = 0 then
+    Value := ListView1.Items[StringDS.RecNo].SubItems[5];
+   if CompareText(VarName, 'Observaciones') = 0 then
+    Value := ListView1.Items[StringDS.RecNo].SubItems[6];
+end;
+
+procedure TFmFondos.Ed_busquedaChange(Sender: TObject);
+begin
+ ApplyFilter((Sender as TEdit).Text);
+end;
+
+procedure TFmFondos.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+ action := cafree;
+end;
+
+procedure TFmFondos.FormCreate(Sender: TObject);
+begin
+
+ ListaCompleta := TStringList.create;
+ ListaActiva := TStringList.Create;
+
+ FormatSettings.ShortDateFormat := 'dd/mm/yyyy';
+ Ed_FechaDesde.date := now;
+ Ed_FechaHasta.date := now;
+
+end;
+
+
+procedure TFmFondos.FormDestroy(Sender: TObject);
+begin
+  ListaCompleta.Free;
+  ListaActiva.Free;
+end;
+
+procedure TFmFondos.ListView1CustomDrawItem(Sender: TCustomListView;
+  Item: TListItem; State: TCustomDrawState; var DefaultDraw: Boolean);
+begin
+  if Item.SubItems[1] = 'E'  then
+      Sender.Canvas.Font.Color := clRed
+  else   Sender.Canvas.Font.Color := clgreen;
+
+  DefaultDraw := true;
+end;
+
+procedure TFmFondos.ListView1Data(Sender: TObject; Item: TListItem);
+var
+ Fondo : Tfondo;
+begin
+  Fondo := TFondo(ListaActiva.Objects[Item.Index]);
+  with Item do
+   begin
+     Caption :=  IntToStr(Fondo.id);
+     SubItems.Add( DateToStr( Fondo.fecha ) );
+     SubItems.Add( Fondo.IngEgr);
+    // SubItems.Add( Fondo.tipo);
+     SubItems.Add( Fondo.descripcion);
+     SubItems.Add( Fondo.comprobante);
+     SubItems.Add( FloattOsTRf( Fondo.importe, ffFixed,18,2));
+     SubItems.Add( Fondo.Observaciones);
+     SubItems.Add( IntToStr(Fondo.IdComprobante));
+   end;
+end;
+
+procedure TFmFondos.ListView1DblClick(Sender: TObject);
+begin
+ TB_editClick(Sender);
+end;
+
+procedure TFmFondos.Tb_ExitClick(Sender: TObject);
+begin
+ close;
+end;
+
+procedure TFmFondos.Tb_ReadDbClick(Sender: TObject);
+
+begin
+
+ ListaCompleta.Clear;
+ FondosLeerListado(ListaCompleta,Ed_FechaDesde.Date,Ed_FechaHasta.Date );
+ Ed_busqueda.Text := '';
+ ApplyFilter(Ed_busqueda.Text);
+
+end;
+
+procedure TFmFondos.TB_PrintClick(Sender: TObject);
+begin
+  StringDS.RangeEnd := reCount;
+  StringDS.RangeEndCount := ListView1.Items.Count;
+
+  frxReport1.LoadFromFile(ExtractFilePath(Application.ExeName) + '\informes\fondos.fr3')   ;
+  SetUpReporte(frxReport1, 'Movimientos de fondos. ' + FormatDateTime('dd/mm/yyyy', Ed_FechaDesde.Date) +' '+FormatDateTime('dd/mm/yyyy',Ed_FechaHasta.Date)  );
+  frxReport1.ShowReport;
+end;
+
+procedure TFmFondos.TB_AddClick(Sender: TObject);
+begin
+  Pn_EditAdd.top := 50;
+  Pn_EditAdd.left := 50;
+  Editar := false;
+  Bloqueo;
+  Pn_EditAdd.Visible := true;
+  Pn_EditAdd.BringToFront;
+
+   Ed_Id.Enabled := false;
+   Ed_Id.text := '' ;
+   Ed_Descripcion.Text := '';
+   Ed_Fecha.Date := now ;
+   //CB_Tipo.text := '';
+   Ed_Comprobante.text := '';
+   Ed_Importe.text := '0';
+   Ed_Observ.text := '';
+   GOP_IngEgr.ItemIndex := 0;
+   Ed_IdComprob.Text := '0';
+
+end;
+
+procedure TFmFondos.Tb_DeleteClick(Sender: TObject);
+var
+ IdFondo : Integer;
+begin
+ IdFondo :=  StrToInt(Listview1.items[Listview1.ItemIndex].Caption);
+ if DialogoBox('¿Confirma borrar el movimiento?'+ Listview1.items[Listview1.ItemIndex].Caption +' ?','Borrar fondos', 1,1)  then
+ Begin
+  Listview1.items[Listview1.ItemIndex].Delete;
+
+ End;
+
+end;
+
+procedure TFmFondos.Tb_EditClick(Sender: TObject);
+var
+  Fondo : TFondo;
+  i : integer;
+begin
+   if Listview1.ItemIndex < 0 then  Exit;
+
+   Editar := true;
+   Bloqueo;
+
+   Pn_EditAdd.Visible := true;
+   Pn_EditAdd.top := 50;
+   Pn_EditAdd.left := 50;
+
+   Pn_EditAdd.BringToFront;
+
+
+   Fondo := TFondo.create;
+   Fondo.Id :=  StrToInt(Listview1.items[Listview1.ItemIndex].Caption);
+   FondosLeerFondo(Fondo);
+
+   Ed_Id.Enabled := false;
+   Ed_Id.text := Listview1.items[Listview1.ItemIndex].Caption    ;
+   Ed_Descripcion.Text := Fondo.Descripcion;
+   Ed_Fecha.Date := Fondo.Fecha ;
+   //CB_Tipo.text := Fondo.Tipo;
+   Ed_Descripcion.text := Fondo.Descripcion;
+   Ed_Comprobante.text := Fondo.Comprobante;
+   Ed_Importe.text := FloatToStr( Fondo.Importe );
+   Ed_Observ.text := Fondo.Observaciones;
+   if Fondo.IngEgr = 'I' then
+     GOP_IngEgr.ItemIndex := 0 else GOP_IngEgr.ItemIndex := 1;
+   Ed_IdComprob.Text := IntToStr(Fondo.IdComprobante);
+
+   Fondo.Free;
+
+end;
+
+end.
+

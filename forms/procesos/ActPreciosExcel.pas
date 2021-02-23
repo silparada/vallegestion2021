@@ -1,0 +1,171 @@
+unit ActPreciosExcel;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, Buttons, Grids, ValEdit, DB, ADODB, ComCtrls, Gauges,
+  ExtCtrls;
+
+type
+  TFmActPreciosExcel = class(TForm)
+    BC_ReadFile: TBitBtn;
+    OD_Archivo: TOpenDialog;
+    Edit1: TEdit;
+    BitBtn2: TBitBtn;
+    SG_Excel: TStringGrid;
+    BitBtn3: TBitBtn;
+    Memo1: TMemo;
+    CB_opcionTitulos: TCheckBox;
+    CB_CampoclaveDb: TComboBox;
+    Gauge1: TGauge;
+    BC_CopyMemoText: TBitBtn;
+    Label1: TLabel;
+    Panel1: TPanel;
+    lb_3344: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    CB_ColumClaveEx: TComboBox;
+    Label4: TLabel;
+    Label5: TLabel;
+    Label6: TLabel;
+    CB_CampoActDb: TComboBox;
+    CB_ColumActEx: TComboBox;
+    procedure BC_ReadFileClick(Sender: TObject);
+    procedure BitBtn2Click(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormCreate(Sender: TObject);
+    procedure BC_CopyMemoTextClick(Sender: TObject);
+    procedure ProcesarPrecios;
+    procedure BitBtn3Click(Sender: TObject);
+
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FmActPreciosExcel: TFmActPreciosExcel;
+
+implementation
+{$R *.dfm}
+
+uses
+   Articulos,rubros,importsdll,
+   ComObj,ExcelXP;
+
+procedure TFmActPreciosExcel.ProcesarPrecios;
+var
+  Col : integer;
+  ValorEntero,i: Integer;
+  Articulo : TArticulo;
+  ValorReal : double;
+begin
+{  if (SG_CamposDb.Cells[1,1] = '0') or (SG_CamposDb.Cells[1,2] = '0') then
+   begin
+     Mensaje('Los campos IdArticulo y Descripcion son obligatorios.','Importación de clientes',2);
+     exit;
+   end;}
+
+  Articulo := TArticulo.create;
+   for i:= 1 to SG_Excel.RowCount - 1 do
+    begin
+     Col := CB_ColumClaveEx.itemIndex+1;
+     Articulo.IdArticulo := SG_Excel.Cells[col,i]; // se uas IdArticulo y Precio1 para todos los valoses
+     Col := CB_ColumActEx.itemIndex+1;
+     if TryStrToFloat(SG_Excel.Cells[col,i], ValorReal ) then
+           Articulo.Precio := ValorReal else Begin  Articulo.Precio := 0; Memo1.Lines.Add('Error de conversión Fila: '+ IntToStr(i) +' - No se actualizó el precio. ' );end;
+
+      ArticuloActPrecio(Articulo, CB_CampoActDb.text);
+      Gauge1.Progress :=  trunc( (i  /  SG_Excel.RowCount)*100);
+    end;
+     Gauge1.Progress := 100;
+
+     Memo1.Lines.Add('Se actualizaron '+ IntToStr(SG_Excel.RowCount-1) +' Artículos');
+  Articulo.free;
+end;
+
+
+procedure TFmActPreciosExcel.BC_CopyMemoTextClick(Sender: TObject);
+begin
+   Memo1.SelectAll;
+   MEmo1.CopyToClipboard;
+end;
+
+procedure TFmActPreciosExcel.BC_ReadFileClick(Sender: TObject);
+var
+   Excel, WrkS, WrkB : OLEVariant;
+   Row, Col : Integer;
+   Rows, Cols ,i: Integer;
+begin
+
+
+   Excel := CreateOleObject('Excel.Application');
+   Excel.Workbooks.Open( Edit1.Text );
+
+   WrkS := Excel.Worksheets[1];
+   Cols := WrkS.UsedRange.Columns.Count;
+   Rows := WrkS.UsedRange.Rows.Count;
+
+   for Row:= 0 to SG_Excel.RowCount do
+         SG_Excel.Rows[Row].Clear;
+
+   SG_Excel.FixedRows := 1;
+   SG_Excel.FixedCols := 1;
+   SG_Excel.RowCount := Rows;
+   SG_Excel.ColCount := Cols + 1;
+
+   if CB_opcionTitulos.Checked then
+   Begin
+   for Row:= 0 to SG_Excel.RowCount-1 do
+      for Col:= 1 to SG_Excel.ColCount  do
+         SG_Excel.Cells[Col,Row]:= Excel.ActiveSheet.Cells[Row+1,Col].Value;
+   end else
+   begin
+   for Row:= 1 to SG_Excel.RowCount-1 do
+      for Col:= 1 to SG_Excel.ColCount  do
+         SG_Excel.Cells[Col,Row]:= Excel.ActiveSheet.Cells[Row,Col].Value;
+   end;
+
+   for i:= 1 to SG_Excel.ColCount-1 do
+    begin
+      SG_Excel.cells[i,0] := SG_Excel.cells[i,0] +'('+ intToStr(i) +')';
+      CB_ColumClaveEx.Items.Add(SG_Excel.cells[i,0]);
+      CB_ColumActEx.Items.Add(SG_Excel.cells[i,0]);
+    end;
+   Excel.Quit;
+
+
+
+
+
+
+end;
+
+procedure TFmActPreciosExcel.BitBtn2Click(Sender: TObject);
+begin
+ if OD_Archivo.Execute then
+  begin
+   Edit1.Text := OD_Archivo.FileName;
+  // BC_ReadFileClick(Sender);
+  end;
+end;
+
+procedure TFmActPreciosExcel.BitBtn3Click(Sender: TObject);
+begin
+ ProcesarPrecios;
+end;
+
+procedure TFmActPreciosExcel.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+ action := cafree;
+end;
+
+procedure TFmActPreciosExcel.FormCreate(Sender: TObject);
+begin
+  SG_Excel.ColWidths[0] := 20;
+
+end;
+
+end.

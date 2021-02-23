@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<TfrxReport Version="5.5.6" DotMatrixReport="False" IniFile="\Software\Fast Reports" PreviewOptions.Buttons="4095" PreviewOptions.Zoom="1" PrintOptions.Printer="Por defecto" PrintOptions.PrintOnSheet="0" ReportOptions.CreateDate="42546,9374862616" ReportOptions.Description.Text="" ReportOptions.LastChange="42546,9541559722" ScriptLanguage="PascalScript" ScriptText.Text="begin&#13;&#10;&#13;&#10;end.">
+  <Datasets>
+    <item DataSet="DSItems" DataSetName="DSItems"/>
+  </Datasets>
+  <TfrxDataPage Name="Data" Height="1000" Left="0" Top="0" Width="1000"/>
+  <TfrxReportPage Name="Page1" PaperWidth="210" PaperHeight="297" PaperSize="9" LeftMargin="10" RightMargin="10" TopMargin="10" BottomMargin="10" Columns="2" ColumnWidth="95" ColumnPositions.Text="0&#13;&#10;95" HGuides.Text="" VGuides.Text="">
+    <TfrxMasterData Name="MasterData1" FillType="ftBrush" FillGap.Top="0" FillGap.Left="0" FillGap.Bottom="0" FillGap.Right="0" Height="145,35436" Left="0" Top="124,72449" Width="359,05535" Columns="1" ColumnWidth="18897,6377952756" ColumnGap="0" DataSet="DSItems" DataSetName="DSItems" RowCount="0">
+      <TfrxMemoView Name="DSItemsIdArticulo" Left="11,33859" Top="3,77953" Width="128,50402" Height="18,89765" DataField="IdArticulo" DataSet="DSItems" DataSetName="DSItems" Text="[DSItems.&#34;IdArticulo&#34;]"/>
+      <TfrxMemoView Name="DSItemsDescripcion" Left="173,85838" Top="3,77953" Width="173,85838" Height="18,89765" DataField="Descripcion" DataSet="DSItems" DataSetName="DSItems" Text="[DSItems.&#34;Descripcion&#34;]"/>
+      <TfrxBarcode2DView Name="Barcode2D1" Left="11,33859" Top="34,01577" Width="84" Height="84" BarType="bcCodeQR" BarProperties.Encoding="qrAuto" BarProperties.QuietZone="0" BarProperties.ErrorLevels="ecL" BarProperties.PixelSize="4" BarProperties.CodePage="0" DataField="IdArticulo" DataSet="DSItems" DataSetName="DSItems" Rotation="0" ShowText="False" Text="12345678" Zoom="1" FontScaled="True" QuietZone="0"/>
+    </TfrxMasterData>
+    <TfrxPageHeader Name="PageHeader1" FillType="ftBrush" FillGap.Top="0" FillGap.Left="0" FillGap.Bottom="0" FillGap.Right="0" Height="45,35436" Left="0" Top="18,89765" Width="718,1107"/>
+  </TfrxReportPage>
+</TfrxReport>

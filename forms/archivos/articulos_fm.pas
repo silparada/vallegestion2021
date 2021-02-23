@@ -1,0 +1,546 @@
+{ UNIDAD ARTICULOS:
+LEE A TRAVES DE UN TSTRINGLIST la tabla Articulos (este procedimiento esta en ora unidad donde solo se accede a los datos)
+Luego se carga el ListView en forma virtual, es decir por demanda, sino tarda mucho.
+Cuando se ordena haceindo clik en las columnas del Listview, no se ordena el propio Listview, ya que el procedimiento
+"custonSort" no funciona en modo virtual. En cambio se ordena el StrinList que queda cargado con los mismos datos
+hasta que se lea nuevamente la DB.
+Hay un CostomShor para cada columna, porque son campos de distintos tipo (String , numeros, fechas , etc) y se deben
+comparar de distinta forma }
+
+unit articulos_fm;
+
+interface
+
+uses Vcl.Dialogs, Vcl.ComCtrls, Vcl.StdCtrls, Vcl.Buttons, Vcl.Imaging.jpeg,
+  Vcl.ExtCtrls, Vcl.WinXCtrls, Vcl.Controls, System.Classes, Vcl.ToolWin,
+  VCl.forms, vcl.graphics, SysUtils      ;
+
+type
+  TFmArticulos = class(TForm)
+    ToolBar1: TToolBar;
+    TB_readdb: TToolButton;
+    TB_add: TToolButton;
+    TB_edit: TToolButton;
+    TB_Delete: TToolButton;
+    Lv_Main: TListView;
+    Panel2: TPanel;
+    Ed_busqueda: TEdit;
+    OD_LogoPath: TOpenDialog;
+    TB_Movim: TToolButton;
+    Ed_BusqIdArt: TEdit;
+    Pn_EditAdd: TPanel;
+    ed_IdArticulo: TEdit;
+    Label1: TLabel;
+    Label2: TLabel;
+    Ed_Descripcion: TEdit;
+    Ed_IdRubro: TEdit;
+    Label6: TLabel;
+    CB_ListaRubros: TComboBox;
+    Ed_costo: TEdit;
+    Label4: TLabel;
+    Ed_Utilidad: TEdit;
+    Label8: TLabel;
+    Ed_precio: TEdit;
+    Label9: TLabel;
+    Cb_CodIva: TComboBox;
+    Label16: TLabel;
+    Ed_StockOpt: TEdit;
+    Label13: TLabel;
+    Ed_StockMIn: TEdit;
+    Label12: TLabel;
+    Ed_StockAct: TEdit;
+    Label11: TLabel;
+    Cb_ControlStock: TCheckBox;
+    CB_Habilitado: TCheckBox;
+    Ed_imagen: TEdit;
+    Img_FotoArticulo: TImage;
+    Img_SinFoto: TImage;
+    SpeedButton1: TSpeedButton;
+    Ed_Ubicacion: TEdit;
+    Label15: TLabel;
+    Ed_CodFabrica: TEdit;
+    Label10: TLabel;
+    Label20: TLabel;
+    Label14: TLabel;
+    Ed_UnidMedida: TEdit;
+    Ed_codBarras: TEdit;
+    Label3: TLabel;
+    Memo1: TMemo;
+    lb_FechaUltVta: TLabel;
+    lb_FechaUltCompr: TLabel;
+    lb_FechaAct: TLabel;
+    lb_FechaAlta: TLabel;
+    Img_EAN13: TImage;
+    Bc_Aceptar: TBitBtn;
+    BC_Cancelar: TBitBtn;
+    StatusBar1: TStatusBar;
+    TS_SoloActivos: TToggleSwitch;
+    Label5: TLabel;
+    TB_ExportExc: TToolButton;
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure TB_DeleteClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure Lv_MainData(Sender: TObject; Item: TListItem);
+    procedure Ed_IdRubroChange(Sender: TObject);
+    procedure CB_ListaRubrosChange(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
+    procedure Ed_costoExit(Sender: TObject);
+    procedure TB_MovimClick(Sender: TObject);
+    procedure Ed_UtilidadExit(Sender: TObject);
+    procedure Ed_precioExit(Sender: TObject);
+    procedure Ed_UtilidadChange(Sender: TObject);
+    procedure Ed_costoChange(Sender: TObject);
+    procedure TB_readdbClick(Sender: TObject);
+    procedure Ed_busquedaChange(Sender: TObject);
+    procedure TB_editClick(Sender: TObject);
+    procedure Bc_AceptarClick(Sender: TObject);
+    procedure BC_CancelarClick(Sender: TObject);
+    procedure TB_addClick(Sender: TObject);
+    procedure Lv_MainDblClick(Sender: TObject);
+    procedure TB_ExportExcClick(Sender: TObject);
+    procedure Ed_BusqIdArtChange(Sender: TObject);
+  private
+    { Private declarations }
+    procedure ApplyFilter(const S: string);
+    procedure ApplyFilterId(const S: string);
+    procedure Bloqueo;
+    procedure DesBloqueo;
+  public
+    { Public declarations }
+  end;
+
+var
+  FmArticulos: TFmArticulos;
+
+implementation
+{$R *.dfm}
+
+uses
+    //class
+    articulos,articulosmovim,rubros, ComprobVtaImpuestos, ClipBrd,  eventos,
+
+    main, UtilsFunc, importsdll,
+    Ajustes, EAN13Util, ArticulosMovim_fm;
+
+var
+  ListaCompleta : TStringList;
+  ListaActiva : TStringList;
+  bm: TBitmap;
+  pn: TPanel;
+  img: TImage;
+  Editar : Boolean;
+  ActPrecio :boolean;
+
+procedure TFmArticulos.Bloqueo;
+begin
+  bm := GetFormImage;
+  FadeBitmap(bm);
+  pn := TPanel.Create(nil);
+  img := TImage.Create(nil);
+  img.Parent := pn;
+     pn.BoundsRect := ClientRect;
+     pn.BevelOuter := bvNone;
+     img.Align := alClient;
+     img.Picture.Bitmap.Assign(bm);
+     pn.Parent := Self;
+end;
+procedure TFmArticulos.DesBloqueo;
+begin
+  img.Free;
+  pn.Free;
+  bm.Free;
+end;
+
+procedure TFmArticulos.ApplyFilter(const S: string);
+var
+  I: Integer;
+begin
+  Lv_Main.Items.BeginUpdate;
+  try
+    Lv_Main.Clear;
+    ListaActiva.Clear;
+    for I := 0 to ListaCompleta.Count - 1 do
+      if (S = '') or (Pos(UpperCase(S), UpperCase(ListaCompleta[i]) )  <> 0 ) then
+        ListaActiva.AddObject(ListaCompleta[I], ListaCompleta.Objects[i] );
+    Lv_Main.Items.Count := ListaActiva.Count;
+  finally
+    Lv_Main.Items.EndUpdate;
+  end;
+ StatusBar1.Panels[0].Text :=  'Registros: '+IntToStr(Lv_Main.Items.Count);
+end;
+
+procedure TFmArticulos.ApplyFilterId(const S: string);
+var
+  I: Integer;
+begin
+  Lv_Main.Items.BeginUpdate;
+  try
+    Lv_Main.Clear;
+    ListaActiva.Clear;
+    for I := 0 to ListaCompleta.Count - 1 do
+      if (S = '') or (Pos(UpperCase(S), UpperCase( TArticulo(ListaCompleta.Objects[i]).IdArticulo ) )  <> 0 ) then
+        ListaActiva.AddObject(ListaCompleta[I], ListaCompleta.Objects[i] );
+    Lv_Main.Items.Count := ListaActiva.Count;
+  finally
+    Lv_Main.Items.EndUpdate;
+  end;
+ StatusBar1.Panels[0].Text :=  'Registros: '+IntToStr(Lv_Main.Items.Count);
+end;
+
+procedure TFmArticulos.SpeedButton1Click(Sender: TObject);
+begin
+ if not OD_LogoPath.Execute then Exit;
+   Img_fotoArticulo .Picture.LoadFromFile(OD_LogoPath.FileName);
+   Ed_imagen.text := OD_LogoPath.FileName;
+end;
+
+procedure TFmArticulos.Bc_AceptarClick(Sender: TObject);
+var
+  Articulo : TArticulo;
+begin
+  Articulo := TArticulo.create ;
+  Articulo.IDArticulo := Ed_idArticulo.text;
+  Articulo.Descripcion := ed_descripcion.text;
+  Articulo.IdRubro := Ed_idrubro.text;
+
+  Articulo.UltimaAct := now  ;
+  Articulo.Costo := StrToFloat(Ed_costo.text);
+  Articulo.Utilidad :=  StrToFloat(Ed_Utilidad.text);
+  Articulo.Precio :=  StrToFloat(Ed_Precio.text);
+
+  Articulo.CodIva :=  Cb_CodIva.text;
+  Articulo.Habilitado := CB_Habilitado.Checked;
+  Articulo.AdmStock := Cb_ControlStock.Checked;
+  Articulo.Stock   :=  StrToInt(Ed_StockAct.text);
+  Articulo.StockMin := StrToInt(Ed_StockMIn.text);
+
+  Articulo.StockOpt := StrToInt(Ed_StockOpt.text);
+  Articulo.imagenpath := Ed_imagen.text;
+  Articulo.Ubicacion := Ed_Ubicacion.text;
+  Articulo.CodFabrica := Ed_CodFabrica.text;
+  Articulo.UnidadMed := Ed_unidMedida.text;
+  Articulo.CodBarras := Ed_codBarras.text;
+  Articulo.Observaciones := Memo1.text;
+
+  if EDITAR then
+   Begin
+    ArticulosEditar(Articulo)    ;
+    ListaActiva.Objects[Lv_Main.ItemIndex] := Articulo;
+    EventosAgregar('Editar artículo '+ Ed_IdArticulo.text  );
+   End
+  else
+   Begin
+    ArticulosAgregar(Articulo);
+    ListaCompleta.AddObject(Articulo.descripcion, Articulo);
+    ListaActiva.AddObject(Articulo.descripcion, Articulo);
+    Lv_Main.Items.Count := ListaActiva.Count;
+    StatusBar1.Panels[0].text := 'Registros: '+ IntToStr(ListaActiva.Count);
+   End;
+
+  Screen.Cursor := crDefault;
+  Articulo.Free;
+  Desbloqueo;
+  Pn_EditAdd.Visible := false;
+end;
+
+procedure TFmArticulos.BC_CancelarClick(Sender: TObject);
+begin
+ Desbloqueo;
+ Pn_EditAdd.Visible := false;
+end;
+
+procedure TFmArticulos.CB_ListaRubrosChange(Sender: TObject);
+begin
+  Ed_IdRubro.text := TRubro(CB_ListaRubros.items.objects[CB_ListaRubros.ItemIndex]).Id;
+end;
+
+procedure TFmArticulos.Ed_IdRubroChange(Sender: TObject);
+var i : integer;
+begin
+ CB_ListaRubros.ItemIndex := -1;
+ for I := 0 to CB_ListaRubros.Items.Count -1 do
+  if TRubro(CB_ListaRubros.Items.Objects[I]).Id = Ed_IdRubro.text then
+   begin
+    Cb_ListaRubros.ItemIndex := I;
+    break;
+   end;
+
+end;
+
+procedure TFmArticulos.Ed_precioExit(Sender: TObject);
+var valor : Double;
+begin
+
+  If TryStrToFloat( Ed_precio.text, Valor) then
+    Ed_precio.text := FloatToStrF(valor,ffFixed,18,2) else
+                                                  begin
+                                                    Ed_precio.setfocus;
+                                                  end;
+end;
+
+procedure TFmArticulos.Ed_UtilidadChange(Sender: TObject);
+begin
+ ActPrecio := true;
+end;
+
+procedure TFmArticulos.Ed_UtilidadExit(Sender: TObject);
+var valor : Double;
+begin
+  If TryStrToFloat( Ed_Utilidad.text, Valor) then
+    Ed_Utilidad.text := FloatToStrF(valor,ffFixed,18,2) else
+                                                  begin
+                                                    Ed_Utilidad.setfocus;
+                                                  end;
+ If ActPrecio then
+   Ed_Precio.Text := FloatToStr( StrToFloat(Ed_Costo.Text) + (StrToFloat(Ed_Costo.Text) * StrToFloat(Ed_Utilidad.Text)/100 ) );
+ ActPrecio := False;
+end;
+
+procedure TFmArticulos.Ed_BusqIdArtChange(Sender: TObject);
+begin
+  ApplyFilterid((Sender as TEdit).Text);
+end;
+
+procedure TFmArticulos.Ed_busquedaChange(Sender: TObject);
+begin
+ ApplyFilter((Sender as TEdit).Text);
+end;
+
+procedure TFmArticulos.Ed_costoChange(Sender: TObject);
+begin
+ ActPrecio := true;
+end;
+
+procedure TFmArticulos.Ed_costoExit(Sender: TObject);
+var valor : Double;
+begin
+  If TryStrToFloat( Ed_costo.text, Valor) then
+    Ed_costo.text := FloatToStrF(valor,ffFixed,18,2) else
+                                                  begin
+                                                    Ed_costo.setfocus;
+                                                  end;
+ If ActPrecio then
+   Ed_Precio.Text := FloatToStr( StrToFloat(Ed_Costo.Text) + (StrToFloat(Ed_Costo.Text) * StrToFloat(Ed_Utilidad.Text)/100 ) );
+ ActPrecio := False;
+
+end;
+
+procedure TFmArticulos.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  ListaCompleta.Free;
+  ListaActiva.Free;
+  action := cafree;
+end;
+
+procedure TFmArticulos.FormCreate(Sender: TObject);
+var
+  ListaAux : TStringList;
+  I: Integer;
+begin
+
+ ListaCompleta := TStringList.create;
+ ListaActiva := TStringList.Create;
+
+ ListaAux := TStringList.Create;
+ RubrosLeerListado(ListaAux,'activo');
+ for I := 0 to ListaAux.Count -1 do
+   CB_ListaRubros.items.AddObject( TRubro(ListaAux.OBJECTs[i]).Descripcion , ListaAux.Objects[i] );
+
+// for I := 0 to ListaAux.Count -1 do
+//   CB_FilterRubro.items.AddObject( TRubro(ListaAux.OBJECTs[i]).IDRubro +' - '+TRubro(ListaAux.OBJECTs[i]).Descripcion, ListaAux.OBJECTs[i] );
+// CB_FilterRubro.ItemIndex := 0;
+//  SendMessage(CB_FilterRubro.Handle, CB_SETDROPPEDWIDTH, 250, 0);
+
+
+ ListaAux.Clear;
+ ReadDb_LstTasasIva(ListaAux);
+ for I := 0 to ListaAux.Count -1 do
+   CB_CodIva.items.AddObject( TImpuesto(ListaAux.OBJECTs[i]).id_impuesto , ListaAux.OBJECTs[i] );
+
+ ListaAux.Free;
+
+ ActPrecio := false;
+ TB_readdbClick(Sender);
+end;
+
+
+
+procedure TFmArticulos.Lv_MainData(Sender: TObject; Item: TListItem);
+begin
+  with Item do
+   begin
+   Caption := TArticulo(ListaActiva.objects[Item.Index]).IdArticulo;
+   SubItems.Add( TArticulo(ListaActiva.objects[Item.Index]).Descripcion );
+   SubItems.Add( TArticulo(ListaActiva.objects[Item.Index]).IdRubro);
+   SubItems.Add( FloattOsTRf(TArticulo(ListaActiva.objects[Item.Index]).Costo, ffFixed,18,2));
+   SubItems.Add( FloattOsTRf(TArticulo(ListaActiva.objects[Item.Index]).Utilidad, ffFixed,18,2));
+   SubItems.Add( FloattOsTRf(TArticulo(ListaActiva.objects[Item.Index]).Precio, ffFixed,18,2));
+   SubItems.Add( FloattOsTRf(TArticulo(ListaActiva.objects[Item.Index]).Stock, ffFixed,18,2));
+   end;
+
+end;
+
+procedure TFmArticulos.Lv_MainDblClick(Sender: TObject);
+begin
+ TB_editClick(Sender);
+end;
+
+procedure TFmArticulos.TB_MovimClick(Sender: TObject);
+begin
+//Mensaje( IntToStr(ListView1.Selected.Index) ,'sdfdsf',3); exit;
+if Lv_Main.ItemIndex >=0  then
+ Begin
+  FmArticulosMovim := tFmArticulosMovim.Create(Application);
+  FmArticulosMovim.ED_IdArticulo.text := Lv_Main.items[Lv_Main.ItemIndex].Caption;
+  //FmArticulosMovim.ED_descripcion.text :=  Listview1.items[Listview1.ItemIndex].SubItems[0];
+  FmArticulosMovim.Caption := 'Movimientos Artículo: '+ Lv_Main.items[Lv_Main.ItemIndex].Caption + ' '+Lv_Main.items[Lv_Main.ItemIndex].SubItems[0];
+  FmArticulosMovim.ShowModal;
+  FmArticulosMovim.TB_readdbClick(SENDER);
+ End;
+
+//  ShowMovimArticulos(ed_IdArticulo.text);
+end;
+
+procedure TFmArticulos.TB_addClick(Sender: TObject);
+begin
+   Editar := false;
+   Bloqueo;
+   Pn_EditAdd.Visible := true;
+   Pn_EditAdd.BringToFront;
+
+  Ed_IDArticulo.text := '';
+  Ed_IDArticulo.Enabled := TRUE;
+
+  Ed_Descripcion.text := '';
+  Ed_IdRubro.text := '';
+  Ed_Precio.text := '0';
+  Ed_Utilidad.text := FloatToStrF(0, ffFixed,18,2);
+  Ed_Costo.text := FloatToStrF(0, ffFixed,18,2);
+  ActPrecio := false;
+  CB_Habilitado.State := cbChecked;
+  CB_ControlStock.State := cbChecked;
+  Ed_StockAct.text := '0' ;
+  Ed_StockMIn.text := '0' ;
+  Ed_StockOpt.text := '0' ;
+  Ed_imagen.text := '';
+
+  Ed_Ubicacion.text := '';
+  Ed_CodFabrica.text := '';
+  Ed_unidMedida.text := '';
+  Ed_codBarras.Text := '';
+if Ed_CodBarras.Text <> '' then
+     ObtenerCodigoEAN13(Ed_CodBarras.Text, Img_EAN13);
+  Memo1.clear;
+   lb_FechaAlta.Caption := 'Fecha alta: ';
+   lb_FechaAct.Caption := 'Última actualización:' ;
+   lb_FechaUltCompr.Caption := 'Última compra:';
+   lb_FechaUltVta.Caption := 'Última venta:';
+   Cb_CodIva.text := 'IVA1';
+   Img_FotoArticulo.Picture := Img_SinFoto.Picture;
+end;
+
+procedure TFmArticulos.TB_DeleteClick(Sender: TObject);
+begin
+ if DialogoBox('¿Confirma borrar el artículo: '+ Lv_Main.items[Lv_Main.ItemIndex].Caption +' ?','Borrar Artículo', 1,1)  then
+
+   if ArticulosBorrar(Lv_Main.items[Lv_Main.ItemIndex].Caption) then
+     Begin
+       Lv_Main.Items.BeginUpdate;
+       TArticulo(ListaActiva.Objects[Lv_Main.ItemIndex]).descripcion := '******** BORRADO *********';
+       Lv_Main.Items.endUpdate;
+     end;
+end;
+
+procedure TFmArticulos.TB_editClick(Sender: TObject);
+var
+  Articulo : TArticulo;
+begin
+
+   Editar := true;
+   Bloqueo;
+   Pn_EditAdd.Visible := true;
+   Pn_EditAdd.BringToFront;
+   Pn_EditAdd.top := 20;
+   Pn_EditAdd.Left :=20;
+
+   Articulo := TArticulo.create;
+   Articulo.IdArticulo :=  Lv_Main.items[Lv_Main.ItemIndex].Caption;
+   ArticulosLeerArticulo(Articulo);
+
+  Ed_IDArticulo.text := Articulo.IdArticulo;
+  Ed_IDArticulo.Enabled := FALSE;
+
+  Ed_Descripcion.text := Articulo.Descripcion;
+  Ed_IdRubro.text := Articulo.Idrubro;
+  Ed_Precio.text := FloatToStrF(Articulo.Precio, ffFixed,18,2);
+  Ed_Utilidad.text := FloatToStrF(Articulo.Utilidad, ffFixed,18,2);
+  Ed_Costo.text := FloatToStrF(Articulo.Costo, ffFixed,18,2);
+  ActPrecio := false;
+  If Articulo.Habilitado then CB_Habilitado.State := cbChecked else  CB_Habilitado.State := cbUnchecked;
+  If Articulo.AdmStock then  CB_ControlStock.State := cbChecked else  CB_ControlStock.State := cbUnchecked;
+  Ed_StockAct.text := IntToStr(Articulo.Stock) ;
+  Ed_StockMIn.text := IntToStr(Articulo.StockMin) ;
+  Ed_StockOpt.text := IntToStr(Articulo.StockOpt) ;
+  Ed_imagen.text := Articulo.imagenpath;
+
+  Ed_Ubicacion.text := Articulo.Ubicacion;
+  Ed_CodFabrica.text := Articulo.CodFabrica;
+  Ed_unidMedida.text := Articulo.UnidadMed;
+  Ed_codBarras.Text := Articulo.CodBarras;
+if Ed_CodBarras.Text <> '' then
+     ObtenerCodigoEAN13(Ed_CodBarras.Text, Img_EAN13);
+  Memo1.clear;
+  Memo1.text := Articulo.Observaciones;
+  if Articulo.FechaAlta > 0 then
+   lb_FechaAlta.Caption := 'Fecha alta: '+FormatDateTime('dd/mm/yyyy' , Articulo.FechaAlta ) else  lb_FechaAlta.Caption := 'Fecha alta: ';
+  if Articulo.UltimaAct > 0 then
+   lb_FechaAct.Caption := 'Última actualización: '+FormatDateTime('dd/mm/yyyy' , Articulo.UltimaAct ) else lb_FechaAct.Caption := 'Última actualización: ';
+  if Articulo.UltimaCpra > 0 then
+   lb_FechaUltCompr.Caption := 'Última compra: '+FormatDateTime('dd/mm/yyyy' , Articulo.UltimaCpra)  else lb_FechaUltCompr.Caption := 'Última compra: ';
+  if Articulo.UltimaVta > 0 then
+   lb_FechaUltVta.Caption := 'Última venta:'+FormatDateTime('dd/mm/yyyy' , Articulo.UltimaVta ) else lb_FechaUltVta.Caption := 'Última venta:';
+  Cb_CodIva.text := Articulo.CodIva;
+  if Articulo.imagenpath <> '' then
+     Img_FotoArticulo.Picture.LoadFromFile(Articulo.imagenpath) else Img_FotoArticulo.Picture := Img_SinFoto.Picture;
+
+     Articulo.Free;
+end;
+
+procedure TFmArticulos.TB_ExportExcClick(Sender: TObject);
+var
+  sl: TStringlist;
+ i, k: integer;
+ s: string;
+  item: TListItem;
+ begin
+    sl:= TStringlist.Create;
+    try
+      For i := 0 To Lv_Main.items.count-1 Do Begin
+        item := Lv_Main.Items[i];
+        S:= item.Caption;
+        For k := 0 To item.SubItems.Count-1 Do
+          S:= S + #9 + item.Subitems[k];
+        sl.Add( S );
+      End; { For }
+      Clipboard.AsText := sl.Text;
+    finally
+      sl.free
+    end;
+
+end;
+
+procedure TFmArticulos.TB_readdbClick(Sender: TObject);
+begin
+ ListaCompleta.Clear;
+ if TS_SoloActivos.State = tssOn then    // solo activos
+   ArticulosLeerListado(ListaCompleta, 'activo')
+ else
+   ArticulosLeerListado(ListaCompleta, 'todos');
+ Ed_busqueda.Text := '';
+ ApplyFilter(Ed_busqueda.Text);
+ //ListView1.ItemIndex := 0;
+end;
+
+end.
+
+

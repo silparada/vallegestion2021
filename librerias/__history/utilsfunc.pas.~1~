@@ -1,0 +1,329 @@
+unit utilsfunc;
+
+
+interface
+uses
+  Winapi.Windows, grids,Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Cuotas ,usuarios, ajustes;
+
+ function IsEmptyOrNull(const Value: Variant): Boolean;
+ procedure FadeBitmap(ABitmap: TBitmap);
+ Function RestaUnMes(F1 : TDateTime): TDateTime ;
+ function LastMonthDay(Dat: TDateTime): TDateTime;
+ function FirstMonthDay(Dat: TDateTime): TDateTime;
+ Function MesesCadena(i : integer) : string;
+ Function SigFecha ( F1 : TDateTime;Aumento: integer):TDatetime;
+ Function SigMes (F1 : TDateTime): TDateTime ;
+ Procedure VaciarGrilla(var Grilla : TStringGrid);
+ Procedure Solonumeros(var Texto : String);
+
+ Procedure CompletarCerosIzq(var Texto : String; LargoCad: Integer);
+ Procedure CompletarBlancosDer(var Texto : String; LargoCad: Integer);
+
+ procedure GenCodBarras( var Cod:String; Cuota : TCuotas );
+
+ function ArchivosCarpeta(Carpeta, Mascara: String; IncluirPath, IncluirOcultos: Boolean): tStringList;
+
+ Function VerificarPermiso( Usuario: TUsuario ; IdPermiso:Integer):Boolean;
+
+implementation
+
+Function VerificarPermiso( Usuario: TUsuario ; IdPermiso:Integer):Boolean;
+var
+  i: integer;
+Begin
+ Result := false;
+ for I := 0 to Usuario.Permisos.Count-1 do
+   if  TUsuarioPermiso(Usuario.Permisos.Items[i]).IdPermiso = IdPermiso then
+      Result := true;
+
+End;
+
+
+
+procedure GenCodBarras( var Cod:String; Cuota : TCuotas );
+var
+  PosPunto : Integer;
+  EnteroStr,DecimalStr: String;
+  i,TotImp,TotPar,DigVer : Integer;
+  Impar : Boolean;
+  Cod_Id,Cod_CuotaAnio,Cod_CuotaNro,Cod_Importe : String;
+  Cod_Anio,Cod_Mes, Cod_Dia: String;
+Begin
+  //Anio
+  Cod_CuotaAnio := IntToStr(Cuota.Anio);
+  Cod_CuotaAnio := Copy(Cod_CuotaAnio,3,2);  //Año ultimos dos dig
+  //Nro
+  Cod_CuotaNro :=  IntToStr(Cuota.NroCuota); //Cuota;
+   CompletarCerosIzq(Cod_CuotaNro,2);
+
+  //Importe
+  Cod_Importe := FloatToStrF(Cuota.ImportePagado, FFFIxed,18,2); //importe;
+  PosPunto := Pos('.',Cod_Importe);
+  EnteroStr := Copy(Cod_Importe,0,PosPunto-1);
+  DecimalStr := Copy(Cod_Importe,PosPunto+1,length(Cod_Importe));
+  CompletarCerosIzq(EnteroStr,8);
+  CompletarCerosIzq(DecimalStr,2);
+
+  //fecha vto;
+  Cod_Anio := FormatDateTime('yy', Cuota.FechaVto );
+  Cod_Mes := FormatDateTime('mm', Cuota.FechaVto );
+  Cod_Dia := FormatDateTime('dd', Cuota.FechaVto );
+
+  Cod_Id  := IntToStr(Cuota.id);
+  CompletarCerosIzq(Cod_Id,12);
+
+  Cod :=  '441103'+Cod_CuotaAnio+Cod_CuotaNro+EnteroStr+DecimalStr+ Cod_Anio+Cod_Mes+Cod_Dia+Cod_Id+'000';
+
+ //Cod := '0123456789';
+
+  TotPar:= 0;TotImp:=0;
+  Impar := true ;
+  for i:= 1 to Length(Cod) do
+   Begin
+    if Impar then
+      TotImp := TotImp + StrToInt(Cod[i])
+    else
+      TotPar := TotPar + StrToInt(Cod[i]);
+
+    Impar := Not Impar;
+   End;
+
+ // ShowMessage('SUma: '+IntToStr(TotImp*3 + TotPar) );
+  if ((TotImp*3 + TotPar)  MOd 10)=0 then
+    DigVer := 0 else DigVer := 10 - (TotImp*3 + TotPar)  MOd 10;
+
+  Cod := Cod+IntToStr(DigVer);
+ // ShowMessage('Dig Ver: '+IntToStr(DigVer));
+end;
+
+
+procedure FadeBitmap(ABitmap: TBitmap);
+type
+  PRGBTripleArray = ^TRGBTripleArray;
+  TRGBTripleArray = array[word] of TRGBTriple;
+var
+  SL: PRGBTripleArray;
+  y: Integer;
+  x: Integer;
+begin
+  ABitmap.PixelFormat := pf24bit;
+
+  for y := 0 to ABitmap.Height - 1 do
+  begin
+    SL := ABitmap.ScanLine[y];
+    for x := 0 to ABitmap.Width - 1 do
+      with SL[x] do
+        begin
+          rgbtRed := rgbtRed div 2;
+          rgbtGreen := rgbtGreen div 2;
+          rgbtBlue := rgbtBlue div 2;
+        end;
+  end;
+end;
+
+
+function IsEmptyOrNull(const Value: Variant): Boolean;
+begin
+  Result := VarIsClear(Value) or VarIsEmpty(Value) or VarIsNull(Value) or (VarCompareValue(Value, Unassigned) = vrEqual);
+  if (not Result) and VarIsStr(Value) then
+    Result := Value = '';
+end;
+
+function LastMonthDay(Dat: TDateTime): TDateTime;
+var
+  Year, Month, Day: Word;
+  fecha: TDateTime;
+begin
+  fecha := IncMonth(Dat,1); //mes siguiente
+  DecodeDate(fecha, Year, Month, Day);
+  Day := 1;                 //primer dia
+  fecha := EncodeDate(Year, Month, Day) - 1;
+  result := Fecha;
+end;
+
+FUNCTION SigMes (F1 : TDateTime): TDateTime ;
+var
+    Y1,M1,D1 : Word;
+begin
+   DecodeDate(F1,Y1,M1,D1);
+   M1 := M1 + 1;
+   if M1 > 12 then {SE PASA DE ANIO}
+    begin
+      M1 := 1;
+      Y1 := Y1 + 1;
+    end;
+   try {ini bloque de protección}
+     Result := EncodeDate(Y1,M1,D1);
+   except
+     D1 := 28;
+     Result := EncodeDate(Y1,M1,D1)
+   end; {fin bloque de protección}
+end;
+
+
+FUNCTION RestaUnMes(F1 : TDateTime): TDateTime ;
+var
+    Y1,M1,D1 : Word;
+begin
+   DecodeDate(F1,Y1,M1,D1);
+   M1 := M1 - 1;
+   if M1 = 0 then {SE PASA DE ANIO}
+    begin
+      M1 := 12;
+      Y1 := Y1 - 1;
+    end;
+   try {ini bloque de protección}
+     Result := EncodeDate(Y1,M1,D1);
+   except
+     D1 := 28;
+     Result := EncodeDate(Y1,M1,D1)
+   end; {fin bloque de protección}
+end;
+
+Procedure Solonumeros(var Texto : String);
+var
+  Aux: String;i: integer;
+Begin
+  for I := 0 to Length(Texto) do
+   if Texto[i] in ['0'..'9'] then
+     Aux := Aux + Texto[i];
+  TExto := Aux;
+End;
+
+function FirstMonthDay(Dat: TDateTime): TDateTime;
+var
+  Year, Month, Day: Word;
+  fecha: TDateTime;
+begin
+  DecodeDate(Dat, Year, Month, Day);
+  Day := 1;                 //primer dia
+  fecha := EncodeDate(Year, Month, Day);
+  result := Fecha;
+end;
+
+FUNCTION SigFecha (F1 : TDateTime;Aumento: integer): TDateTime ;
+var
+    Y1,M1,D1 : Word;
+begin
+   DecodeDate(F1,Y1,M1,D1);
+   Inc(M1,Aumento);
+   if M1 > 12 then {SE PASA DE ANIO}
+    begin
+      M1 := 1;
+      Inc(Y1);
+    end;
+   try {ini bloque de protección}
+     Result := EncodeDate(Y1,M1,D1);
+     if DayOfWeek(Result) = 1 then {CAE DOMINGO}
+       begin
+        DecodeDate(Result,Y1,M1,D1);
+        Inc(D1);
+        Result := EncodeDate(Y1,M1,D1)
+       end;
+   except
+       Inc(M1);
+       D1 := 1;
+       if M1 > 12 then {SE PASA DE ANIO}
+        begin
+         M1 := 1;
+         Inc(Y1);
+        end;
+       Result := EncodeDate(Y1,M1,D1)
+   end; {fin bloque de protección}
+end;
+function MesesCadena(i : integer) : string;
+ begin
+   case i of
+      1 : result := 'Enero';
+      2 : result := 'Febrero';
+      3 : result := 'Marzo';
+      4 : result := 'Abril';
+      5 : result := 'Mayo';
+      6 : result := 'Junio';
+      7 : result := 'Julio';
+      8 : result := 'Agosto';
+      9 : result := 'Septiembre';
+      10 : result := 'Octubre';
+      11 : result := 'Noviembre';
+      12 : result := 'Diciembre';
+    else
+       result := 'Error';
+ end;
+end;
+Procedure VaciarGrilla(var Grilla : TStringGrid);
+var
+  Col,Row : Integer;
+Begin
+  for Col := 1 to Grilla.RowCount-1 DO
+   For Row := 1 To Grilla.ColCount-1 do
+      Grilla.Cells[row,col] := '';
+End;
+
+FUNCTION emailValido(CONST Value: String): boolean;
+  FUNCTION CheckAllowed(CONST s: String): boolean;
+  VAR i: Integer;
+  BEGIN
+  Result:= False;
+  FOR i:= 1 TO Length(s) DO // illegal char in s -> no valid address
+  IF NOT (s[i] IN ['a'..'z','A'..'Z','0'..'9','_','-','.']) THEN Exit;
+  Result:= true;
+  END;
+VAR
+  i,len: Integer;
+  namePart, serverPart: String;
+BEGIN // of IsValidEmail
+  Result:= False;
+  i:= Pos('@', Value);
+  IF (i=0) OR (Pos('..',Value) > 0) THEN Exit;
+  namePart:= Copy(Value, 1, i - 1);
+  serverPart:= Copy(Value,i+1,Length(Value));
+  len:=Length(serverPart);
+  // must have dot and at least 3 places from end, 2 places from begin
+  IF (len<4) OR
+     (Pos('.',serverPart)=0) OR
+     (serverPart[1]='.') OR
+     (serverPart[len]='.') OR
+     (serverPart[len-1]='.') THEN Exit;
+  Result:= CheckAllowed(namePart) AND CheckAllowed(serverPart);
+END;
+
+Procedure CompletarCerosIzq(var Texto : String; LargoCad: Integer);
+var
+ i:integer;
+Begin
+  for I := 1 to LargoCad- Length(Texto) do
+     Texto := '0'+ Texto;
+End;
+
+Procedure CompletarBlancosDer(var Texto : String; LargoCad: Integer);
+var
+ i:integer;
+Begin
+  for I := Length(Texto)+1 to LargoCad do
+     Texto := Texto + '0';
+End;
+
+
+
+function ArchivosCarpeta(Carpeta, Mascara: String; IncluirPath, IncluirOcultos: Boolean): tStringList;
+var DirInfo: TSearchRec;
+    I, TiposDeArchivo: Integer;
+begin
+  Result := tStringList.Create;
+  TiposDeArchivo := faAnyfile -faSysFile -faDirectory;
+  if not IncluirOcultos then TiposDeArchivo := TiposDeArchivo -faHidden;
+  I := FindFirst(IncludeTrailingPathDelimiter(Carpeta) + Mascara, TiposDeArchivo, DirInfo);
+  while I = 0 do
+  begin
+    if (DirInfo.Name <> '.') and (DirInfo.Name <> '..') then
+    begin
+      if IncluirPath then Result.Add(IncludeTrailingPathDelimiter(Carpeta) + DirInfo.Name)
+      else Result.Add(DirInfo.Name);
+    end;
+    I := FindNext(DirInfo);
+  end;
+ // FindClose(DirInfo);
+end;
+
+end.

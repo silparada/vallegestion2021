@@ -1,0 +1,93 @@
+unit eventos;
+
+interface
+
+uses
+ Vcl.Graphics,
+ SysUtils,forms,WinTypes, Classes, Contnrs,WideStrings,
+ FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
+ FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, FireDAC.Comp.DataSet,
+ FireDAC.Comp.Client
+ ;
+
+const
+ M = 40;
+ msg1 = 'Texto encriptado';
+
+Type
+  TEvento = class(Tobject)
+    id : Integer;
+    Fecha : TDateTime;
+    Idusuario : String[20];
+    Descripcion : String[120];
+  end;
+
+Procedure EventosAgregar(Descripcion : String);
+Procedure EventosLeerlistado( Lista  : TStringList; Fecha : Tdatetime );
+
+Implementation
+uses
+ main,UtilsFunc,importsdll;
+
+Procedure EventosAgregar(Descripcion : String);
+var
+  Tabla : TFDquery;
+ // Descuento : TDescuento;
+begin
+ try
+  Tabla := TFDquery.Create(Application);
+  Tabla.Connection := FmMain.FDConnection1;
+
+  Tabla.SQL.ADD('INSERT INTO `eventos` (`id`, `Fecha`, `IdUsuario`, `Descripcion`) VALUES (NULL, :fecha, :IdUsuario, :descripcion) ');
+   Tabla.ParamByName('fecha').AsDateTime := now;
+   Tabla.ParamByName('IdUsuario').AsString := Usuario.id;
+   Tabla.ParamByName('descripcion').AsString := Descripcion;
+  Tabla.ExecSQL;
+
+ except
+  on E : Exception do
+    Mensaje('Error insertando evento. Clase = '+E.ClassName +' Error mensaje = '+E.Message,'Error',3);
+ end;
+  Tabla.close;
+  Tabla.free;
+End;
+
+
+Procedure EventosLeerlistado( Lista  : TStringList; Fecha : Tdatetime );
+var
+  Tabla : TFDquery;
+ Evento : TEvento;
+ FechaStr: String;
+begin
+ try
+  Tabla := TFDquery.Create(Application);
+  Tabla.Connection := FmMain.FDConnection1;
+
+  DatetimeToString(FechaStr,'yyyy-mm-dd', Fecha );
+
+  Tabla.SQL.ADD('SELECT * FROM eventos WHERE Fecha>='+ FechaStr +' ORDER BY Fecha DESC') ;
+
+  Tabla.open;
+  While not Tabla.Eof do
+   Begin
+     Evento := TEvento.Create;
+     Evento.Id := Tabla.FieldByName('Id').AsInteger;
+     Evento.fecha := Tabla.FieldByName('Fecha').AsDAteTime;
+     Evento.Idusuario := Tabla.FieldByName('Idusuario').AsString;
+     Evento.Descripcion := Tabla.FieldByName('descripcion').AsString;
+     Lista.AddObject(IntToStr(Evento.id), Evento);
+     Tabla.next;
+   End;
+ except
+  on E : Exception do
+    Mensaje('Error leyendo eventos. Clase = '+E.ClassName +' Error mensaje = '+E.Message,'Error',3);
+ end;
+  Tabla.close;
+  Tabla.free;
+End;
+
+
+
+
+end.
+

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<TfrxReport Version="5.5.6" DotMatrixReport="False" IniFile="\Software\Fast Reports" PreviewOptions.Buttons="4095" PreviewOptions.Zoom="1" PrintOptions.Printer="Por defecto" PrintOptions.PrintOnSheet="0" ReportOptions.CreateDate="42545,759161169" ReportOptions.Description.Text="" ReportOptions.LastChange="42546,5603730324" ScriptLanguage="PascalScript" ScriptText.Text="procedure BC_CAEOnBeforePrint(Sender: TfrxComponent);&#13;&#10;begin&#13;&#10;&#13;&#10;end;&#13;&#10;&#13;&#10;begin&#13;&#10;&#13;&#10;end.">
+  <Datasets>
+    <item DataSet="DSItems" DataSetName="DSItems"/>
+  </Datasets>
+  <Variables>
+    <item Name=" Encabezado"/>
+    <item Name="Comprobante"/>
+    <item Name="Numero"/>
+    <item Name="Fecha"/>
+    <item Name="FechaVto"/>
+    <item Name=" Pie"/>
+    <item Name="BC_CAE"/>
+    <item Name="CAE"/>
+    <item Name="CAE_Vto"/>
+    <item Name=" Clientes"/>
+    <item Name="IdCliente"/>
+    <item Name="Nombre"/>
+    <item Name="Direccion"/>
+    <item Name="Ciudad"/>
+    <item Name="CUIT"/>
+    <item Name="CondVta"/>
+    <item Name="CondTrib"/>
+    <item Name=" SubTotal"/>
+    <item Name="Iva1"/>
+    <item Name="Iva2"/>
+    <item Name="Iva3"/>
+    <item Name="Importe"/>
+    <item Name="SubTotal"/>
+    <item Name="Imp1"/>
+    <item Name="Imp2"/>
+    <item Name="Imp3"/>
+  </Variables>
+  <TfrxDataPage Name="Data" Height="1000" Left="0" Top="0" Width="1000"/>
+  <TfrxReportPage Name="Page1" PaperWidth="210" PaperHeight="297" PaperSize="9" LeftMargin="10" RightMargin="10" TopMargin="10" BottomMargin="10" ColumnWidth="0" ColumnPositions.Text="" HGuides.Text="" VGuides.Text="">
+    <TfrxMasterData Name="MasterData1" FillType="ftBrush" FillGap.Top="0" FillGap.Left="0" FillGap.Bottom="0" FillGap.Right="0" Height="15,11812" Left="0" Top="381,73253" Width="718,1107" ColumnWidth="0" ColumnGap="0" DataSet="DSItems" DataSetName="DSItems" KeepFooter="True" RowCount="0">
+      <TfrxMemoView Name="Me_Codigo" Left="7,55906" Top="0" Width="79,37013" Height="11,33859" DataField="IdArticulo" DataSet="DSItems" DataSetName="DSItems" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="1" ParentFont="False" Text="[DSItems.&#34;IdArticulo&#34;]"/>
+      <TfrxMemoView Name="Me_Descripcion" Left="90,70872" Top="0" Width="389,29159" Height="11,33859" DataSet="DSItems" DataSetName="DSItems" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="1" ParentFont="False" Text="[DSItems.&#34;Descripcion&#34;]"/>
+      <TfrxMemoView Name="Me_Precio" Left="491,3389" Top="0" Width="45,35436" Height="11,33859" DataField="Precio" DataSet="DSItems" DataSetName="DSItems" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="1" HAlign="haRight" ParentFont="False" Text="[DSItems.&#34;Precio&#34;]"/>
+      <TfrxMemoView Name="Me_Cantidad" Left="548,03185" Top="0" Width="45,35436" Height="11,33859" DataField="Cantidad" DataSet="DSItems" DataSetName="DSItems" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="1" HAlign="haRight" ParentFont="False" Text="[DSItems.&#34;Cantidad&#34;]"/>
+      <TfrxMemoView Name="Me_IVA" Left="604,7248" Top="0" Width="45,35436" Height="11,33859" DataField="TasaIva" DataSet="DSItems" DataSetName="DSItems" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="1" HAlign="haRight" ParentFont="False" Text="[DSItems.&#34;TasaIva&#34;]"/>
+      <TfrxMemoView Name="Me_Importe" Left="653,85869" Top="0" Width="45,35436" Height="11,33859" DataField="Importe" DataSet="DSItems" DataSetName="DSItems" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="1" HAlign="haRight" ParentFont="False" Text="[DSItems.&#34;Importe&#34;]"/>
+    </TfrxMasterData>
+    <TfrxPageHeader Name="PageHeader1" FillType="ftBrush" FillGap.Top="0" FillGap.Left="0" FillGap.Bottom="0" FillGap.Right="0" Height="302,362204724409" Left="0" Top="18,89765" Width="718,1107">
+      <TfrxShapeView Name="Shape1" Left="3,77953" Top="3,77953" Width="710,55164" Height="1024,25263"/>
+      <TfrxPictureView Name="Logo" Left="30,23624" Top="11,33859" Width="230,55133" Height="105,82684" HightQuality="False" Transparent="False" TransparentColor="16777215"/>
+      <TfrxMemoView Name="Me_Comprobante" Left="362,83488" Top="18,89765" Width="181,41744" Height="18,89765" Font.Charset="1" Font.Color="0" Font.Height="-16" Font.Name="Calibri" Font.Style="1" ParentFont="False" Text="[Comprobante]"/>
+      <TfrxMemoView Name="Me_Numero" Left="578,26809" Top="18,89765" Width="120,94496" Height="18,89765" Font.Charset="1" Font.Color="0" Font.Height="-16" Font.Name="Calibri" Font.Style="1" ParentFont="False" Text="[Numero]"/>
+      <TfrxShapeView Name="Shape2" Left="321,26005" Top="52,91342" Width="37,7953" Height="37,7953" Shape="skRoundRectangle"/>
+      <TfrxLineView Name="Line2" Left="340,1577" Top="181,41744" Width="0" Height="-90,70872" Color="0" Diagonal="True"/>
+      <TfrxMemoView Name="Me_Letra" Left="325,03958" Top="49,13389" Width="30,23624" Height="37,7953" Font.Charset="1" Font.Color="0" Font.Height="-32" Font.Name="Calibri" Font.Style="1" HAlign="haCenter" ParentFont="False" Text="A"/>
+      <TfrxMemoView Name="Me_Fecha" Left="623,62245" Top="52,91342" Width="75,5906" Height="18,89765" DisplayFormat.FormatStr="mm-dd-yyyy" DisplayFormat.Kind="fkDateTime" Font.Charset="1" Font.Color="0" Font.Height="-15" Font.Name="Calibri" Font.Style="0" ParentFont="False" Text="[Fecha]"/>
+      <TfrxMemoView Name="Memo1" Left="26,45671" Top="124,72449" Width="185,19697" Height="18,89765" Font.Charset="1" Font.Color="0" Font.Height="-13" Font.Name="Calibri" Font.Style="1" HAlign="haRight" ParentFont="False" Text="VALLE SOFT - Software &#38; Tech"/>
+      <TfrxMemoView Name="Memo2" Left="30,23624" Top="139,84261" Width="185,19697" Height="34,01577" Font.Charset="1" Font.Color="0" Font.Height="-9" Font.Name="Calibri" Font.Style="0" HAlign="haCenter" ParentFont="False" Text="Av. Siempre Viva 323 (8316) Neuquén&#13;&#10;www.vallesoft.com.ar / info@vallesoft.com.ar&#13;&#10;IVA RESPONSABLE INSCRIPTO"/>
+      <TfrxMemoView Name="Me_FechaVto" Left="623,62245" Top="75,5906" Width="75,5906" Height="18,89765" Font.Charset="1" Font.Color="0" Font.Height="-15" Font.Name="Calibri" Font.Style="0" ParentFont="False" Text="[FechaVto]"/>
+      <TfrxMemoView Name="Memo3" Left="351,49629" Top="139,84261" Width="173,85838" Height="34,01577" Font.Charset="1" Font.Color="0" Font.Height="-9" Font.Name="Calibri" Font.Style="0" ParentFont="False" Text="CUIT: 30-123456789-3&#13;&#10;Ingresos Brutos: 65464643165&#13;&#10;Inicio de actividades: 01/01/2015"/>
+      <TfrxMemoView Name="Memo4" Left="11,33859" Top="192,75603" Width="41,57483" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-12" Font.Name="Calibri" Font.Style="1" ParentFont="False" Text="CLIENTE:"/>
+      <TfrxLineView Name="Line1" Left="340,1577" Top="3,77953" Width="0" Height="49,13389" Color="0" Diagonal="True"/>
+      <TfrxShapeView Name="Shape5" Left="7,55906" Top="275,90569" Width="702,99258" Height="15,11812" Fill.BackColor="15790320" Frame.Color="536870911"/>
+      <TfrxMemoView Name="Memo5" Left="15,11812" Top="275,90569" Width="45,35436" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="1" ParentFont="False" Text="CODIGO"/>
+      <TfrxMemoView Name="Memo6" Left="94,48825" Top="275,90569" Width="68,03154" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="1" ParentFont="False" Text="DESCRIPCIÓN"/>
+      <TfrxMemoView Name="Memo7" Left="495,11843" Top="275,90569" Width="45,35436" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="1" ParentFont="False" Text="PRECIO"/>
+      <TfrxMemoView Name="Memo8" Left="551,81138" Top="275,90569" Width="45,35436" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="1" ParentFont="False" Text="CANTIDAD"/>
+      <TfrxMemoView Name="Memo9" Left="608,50433" Top="275,90569" Width="45,35436" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="1" HAlign="haRight" ParentFont="False" Text="IVA"/>
+      <TfrxMemoView Name="Memo10" Left="657,63822" Top="275,90569" Width="45,35436" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="1" ParentFont="False" Text="IMPORTE"/>
+      <TfrxMemoView Name="Me_IdCliente" Left="11,33859" Top="207,87415" Width="41,57483" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-12" Font.Name="Calibri" Font.Style="1" ParentFont="False" Text="[IdCliente]"/>
+      <TfrxMemoView Name="Me_Nombre" Left="56,69295" Top="207,87415" Width="287,24428" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-12" Font.Name="Calibri" Font.Style="1" ParentFont="False" Text="[Nombre]"/>
+      <TfrxMemoView Name="Me_Direccion" Left="56,69295" Top="226,7718" Width="287,24428" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-12" Font.Name="Calibri" Font.Style="1" ParentFont="False" Text="[Direccion]"/>
+      <TfrxMemoView Name="Me_Ciudad" Left="56,69295" Top="245,66945" Width="287,24428" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-12" Font.Name="Calibri" Font.Style="1" ParentFont="False" Text="[Ciudad]"/>
+      <TfrxMemoView Name="Me_CUIT" Left="506,45702" Top="207,87415" Width="200,31509" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-12" Font.Name="Calibri" Font.Style="1" ParentFont="False" Text="[CUIT]"/>
+      <TfrxMemoView Name="Me_CondTrib" Left="506,45702" Top="245,66945" Width="200,31509" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-12" Font.Name="Calibri" Font.Style="1" ParentFont="False" Text="[CondTrib]"/>
+      <TfrxMemoView Name="Me_COndVta" Left="506,45702" Top="226,7718" Width="200,31509" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-12" Font.Name="Calibri" Font.Style="1" ParentFont="False" Text="[CondVta]"/>
+      <TfrxMemoView Name="Memo11" Left="351,49629" Top="207,87415" Width="143,62214" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-12" Font.Name="Calibri" Font.Style="1" HAlign="haRight" ParentFont="False" Text="C.U.I.T."/>
+      <TfrxMemoView Name="Memo12" Left="351,49629" Top="245,66945" Width="143,62214" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-12" Font.Name="Calibri" Font.Style="1" HAlign="haRight" ParentFont="False" Text="Cond. Tributaria"/>
+      <TfrxMemoView Name="Memo13" Left="351,49629" Top="226,7718" Width="143,62214" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-12" Font.Name="Calibri" Font.Style="1" HAlign="haRight" ParentFont="False" Text="Cond. Vta."/>
+      <TfrxMemoView Name="Memo16" Left="514,01608" Top="52,91342" Width="94,48825" Height="18,89765" Font.Charset="1" Font.Color="0" Font.Height="-15" Font.Name="Calibri" Font.Style="0" HAlign="haRight" ParentFont="False" Text="Fecha:"/>
+      <TfrxMemoView Name="Memo17" Left="514,01608" Top="75,5906" Width="94,48825" Height="18,89765" Font.Charset="1" Font.Color="0" Font.Height="-15" Font.Name="Calibri" Font.Style="0" HAlign="haRight" ParentFont="False" Text="Fecha Vto.:"/>
+      <TfrxLineView Name="Line3" Left="3,77953" Top="185,19697" Width="710,55164" Height="0" Color="0" Frame.Typ="4"/>
+      <TfrxLineView Name="Line4" Left="3,77953" Top="264,5671" Width="710,55164" Height="0" Color="0" Frame.Typ="4"/>
+    </TfrxPageHeader>
+    <TfrxPageFooter Name="PageFooter1" FillType="ftBrush" FillGap.Top="0" FillGap.Left="0" FillGap.Bottom="0" FillGap.Right="0" Height="147,40167" Left="0" Top="502,67749" Width="718,1107">
+      <TfrxMemoView Name="Me_VtoCAE" Left="393,07112" Top="79,37013" Width="94,48825" Height="15,11812" DisplayFormat.FormatStr="mm-dd-yyyy" DisplayFormat.Kind="fkDateTime" Font.Charset="1" Font.Color="0" Font.Height="-13" Font.Name="Calibri" Font.Style="0" ParentFont="False" Text="[CAE_Vto]"/>
+      <TfrxBarCodeView Name="BC_CAE" Left="15,11812" Top="68,03154" Width="204" Height="49,13389" OnBeforePrint="BC_CAEOnBeforePrint" BarType="bcCode_2_5_interleaved" Expression="&#60;BC_CAE&#62;" Rotation="0" Text="123456789123456789123456789" WideBarRatio="2" Zoom="1" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="0"/>
+      <TfrxMemoView Name="Me_CAE" Left="393,07112" Top="64,25201" Width="94,48825" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-13" Font.Name="Calibri" Font.Style="0" ParentFont="False" Text="[CAE]"/>
+      <TfrxMemoView Name="Memo14" Left="317,48052" Top="64,25201" Width="68,03154" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-13" Font.Name="Calibri" Font.Style="0" HAlign="haRight" ParentFont="False" Text="C.A.E.:"/>
+      <TfrxMemoView Name="Memo15" Left="317,48052" Top="79,37013" Width="68,03154" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-13" Font.Name="Calibri" Font.Style="0" HAlign="haRight" ParentFont="False" Text="C.A.E. Vto.:"/>
+      <TfrxMemoView Name="Memo18" Left="627,40198" Top="34,01577" Width="71,81107" Height="18,89765" Font.Charset="1" Font.Color="0" Font.Height="-15" Font.Name="Arial" Font.Style="1" HAlign="haRight" ParentFont="False" Text="[Importe]"/>
+      <TfrxMemoView Name="Memo19" Left="540,47279" Top="34,01577" Width="79,37013" Height="18,89765" DisplayFormat.FormatStr="%2.2f" DisplayFormat.Kind="fkNumeric" Font.Charset="1" Font.Color="0" Font.Height="-15" Font.Name="Arial" Font.Style="0" HAlign="haRight" ParentFont="False" Text="[Iva2]"/>
+      <TfrxMemoView Name="Memo20" Left="445,98454" Top="34,01577" Width="83,14966" Height="18,89765" DisplayFormat.FormatStr="%2.2f" DisplayFormat.Kind="fkNumeric" Font.Charset="1" Font.Color="0" Font.Height="-15" Font.Name="Arial" Font.Style="0" HAlign="haRight" ParentFont="False" Text="[Iva1]"/>
+      <TfrxMemoView Name="Memo21" Left="362,83488" Top="34,01577" Width="75,5906" Height="18,89765" DisplayFormat.FormatStr="%2.2f" DisplayFormat.Kind="fkNumeric" Font.Charset="1" Font.Color="0" Font.Height="-15" Font.Name="Arial" Font.Style="0" HAlign="haRight" ParentFont="False" Text="[SubTotal]"/>
+      <TfrxMemoView Name="Memo22" Left="638,74057" Top="18,89765" Width="60,47248" Height="18,89765" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="0" HAlign="haRight" ParentFont="False" Text="Importe"/>
+      <TfrxMemoView Name="Memo23" Left="559,37044" Top="18,89765" Width="60,47248" Height="18,89765" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="0" HAlign="haRight" ParentFont="False" Text="IVA 10.5"/>
+      <TfrxMemoView Name="Memo24" Left="468,66172" Top="18,89765" Width="60,47248" Height="18,89765" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="0" HAlign="haRight" ParentFont="False" Text="IVA 21"/>
+      <TfrxMemoView Name="Memo25" Left="377,953" Top="18,89765" Width="60,47248" Height="18,89765" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="0" HAlign="haRight" ParentFont="False" Text="Sub.Total"/>
+      <TfrxLineView Name="Line5" Left="3,77953" Top="3,77953" Width="710,55164" Height="0" Color="0" Frame.Typ="4"/>
+      <TfrxLineView Name="Line6" Left="3,77953" Top="56,69295" Width="710,55164" Height="0" Color="0" Frame.Typ="4"/>
+    </TfrxPageFooter>
+    <TfrxFooter Name="Footer1" FillType="ftBrush" FillGap.Top="0" FillGap.Left="0" FillGap.Bottom="0" FillGap.Right="0" Height="22,67718" Left="0" Top="419,52783" Width="718,1107">
+      <TfrxMemoView Name="Memo26" Left="90,70872" Top="3,77953" Width="287,24428" Height="15,11812" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Arial" Font.Style="2" ParentFont="False" Text="Cantidad de Items: [COUNT(MasterData1)]"/>
+    </TfrxFooter>
+  </TfrxReportPage>
+</TfrxReport>

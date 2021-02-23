@@ -1,0 +1,70 @@
+unit main_tablas;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.WinXPanels,
+  Vcl.ExtCtrls;
+
+type
+  TFmMainTablas = class(TForm)
+    Button1: TButton;
+    CardPanel1: TCardPanel;
+    Card1: TCard;
+    Card2: TCard;
+    Card3: TCard;
+    StackPanel1: TStackPanel;
+    Bc_CtaCte: TButton;
+    BC_Comprobvta: TButton;
+    Button3: TButton;
+    Bc_RepCodBarras: TButton;
+    procedure BC_ComprobvtaClick(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
+    procedure Bc_RepCodBarrasClick(Sender: TObject);
+    procedure Bc_CtaCteClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FmMainTablas: TFmMainTablas;
+
+
+
+implementation
+{$R *.dfm}
+uses
+  main,ciudades_fm,formaspago_fm,usuarios_fm,vendedores_fm;
+
+procedure TFmMainTablas.BC_ComprobvtaClick(Sender: TObject);
+begin
+  FmVendedores := TFmVendedores.create(Nil);
+  FmVendedores.Parent := Card1;
+  CardPanel1.ActiveCard := card1;
+end;
+
+procedure TFmMainTablas.Bc_CtaCteClick(Sender: TObject);
+begin
+  FmCiudades := TFmCiudades.create(Nil);
+  FmCiudades.Parent := Card3;
+  CardPanel1.ActiveCard := card3;
+end;
+
+procedure TFmMainTablas.Bc_RepCodBarrasClick(Sender: TObject);
+begin
+  FmUsuarios := TFmUsuarios.create(Nil);
+  FmUsuarios.Parent := Card2;
+  CardPanel1.ActiveCard := card2;
+end;
+
+procedure TFmMainTablas.Button3Click(Sender: TObject);
+begin
+  FmFormasPago := TFmFormasPago.create(Nil);
+  FmFormasPago.Parent := Card2;
+  CardPanel1.ActiveCard := card2;
+end;
+
+end.

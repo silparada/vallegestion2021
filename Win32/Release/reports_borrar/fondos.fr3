@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<TfrxReport Version="6.2.1" DotMatrixReport="False" IniFile="\Software\Fast Reports" PreviewOptions.Buttons="4095" PreviewOptions.Zoom="1" PrintOptions.Printer="Por defecto" PrintOptions.PrintOnSheet="0" ReportOptions.CreateDate="42543.5348723843" ReportOptions.Description.Text="" ReportOptions.LastChange="43584.4425304745" ScriptLanguage="PascalScript" ScriptText.Text="begin&#13;&#10;end.">
+  <Datasets>
+    <item DataSet="StringDS" DataSetName="StringDS"/>
+  </Datasets>
+  <Styles>
+    <item Name="Title" Font.Charset="1" Font.Color="16777215" Font.Height="-16" Font.Name="Arial" Font.Style="1" Frame.Typ="0" Fill.BackColor="8421504"/>
+    <item Name="Header" Font.Charset="1" Font.Color="128" Font.Height="-13" Font.Name="Arial" Font.Style="1" Frame.Typ="0"/>
+    <item Name="Group header" Font.Charset="1" Font.Color="128" Font.Height="-13" Font.Name="Arial" Font.Style="1" Frame.Typ="0" Fill.BackColor="16053492"/>
+    <item Name="Data" Font.Charset="1" Font.Color="-16777208" Font.Height="-13" Font.Name="Arial" Font.Style="0" Frame.Typ="0"/>
+    <item Name="Group footer" Font.Charset="1" Font.Color="-16777208" Font.Height="-13" Font.Name="Arial" Font.Style="1" Frame.Typ="0"/>
+    <item Name="Header line" Font.Charset="1" Font.Color="-16777208" Font.Height="-13" Font.Name="Arial" Font.Style="0" Frame.Typ="8" Frame.Width="2"/>
+  </Styles>
+  <TfrxDataPage Name="Data" Font.Charset="1" Font.Color="0" Font.Height="-7" Font.Name="Arial" Font.Style="0" Height="1000" Left="0" Top="0" Width="1000"/>
+  <TfrxReportPage Name="Page1" PaperWidth="210" PaperHeight="297" PaperSize="9" LeftMargin="10" RightMargin="10" TopMargin="10" BottomMargin="10" ColumnWidth="0" ColumnPositions.Text="" Frame.Typ="0" HGuides.Text="" VGuides.Text="">
+    <TfrxReportTitle Name="ReportTitle1" FillType="ftBrush" FillGap.Top="0" FillGap.Left="0" FillGap.Bottom="0" FillGap.Right="0" Frame.Typ="0" Height="132.28355" Left="0" Top="18.89765" Width="718.1107">
+      <TfrxPictureView Name="Logo" AllowVectorExport="True" Left="0" Top="0" Width="196.53556" Height="71.81107" Frame.Typ="0" KeepAspectRatio="False" HightQuality="False" Transparent="True" TransparentColor="15780518"/>
+      <TfrxMemoView Name="Me_EmpresaName" AllowVectorExport="True" Left="204.09462" Top="0" Width="309.92146" Height="18.89765" Font.Charset="1" Font.Color="0" Font.Height="-16" Font.Name="Calibri" Font.Style="1" Frame.Typ="0" ParentFont="False" Text="EMPRESA"/>
+      <TfrxLineView Name="Line1" AllowVectorExport="True" Left="0" Top="83.14966" Width="718.1107" Height="0" Color="0" Frame.Typ="4" Frame.Width="2"/>
+      <TfrxMemoView Name="Me_EmpresaDirec" AllowVectorExport="True" Left="204.09462" Top="18.89765" Width="309.92146" Height="15.11812" Font.Charset="1" Font.Color="0" Font.Height="-13" Font.Name="Calibri" Font.Style="0" Frame.Typ="0" ParentFont="False" Text="Dirección"/>
+      <TfrxMemoView Name="Me_EmpresaTel" AllowVectorExport="True" Left="204.09462" Top="35.905535" Width="309.92146" Height="15.11812" Font.Charset="1" Font.Color="0" Font.Height="-13" Font.Name="Calibri" Font.Style="0" Frame.Typ="0" ParentFont="False" Text="Teléfonos"/>
+      <TfrxMemoView Name="Me_EmpresaWeb" AllowVectorExport="True" Left="204.09462" Top="52.91342" Width="309.92146" Height="15.11812" Font.Charset="1" Font.Color="0" Font.Height="-13" Font.Name="Calibri" Font.Style="0" Frame.Typ="0" ParentFont="False" Text="web / email"/>
+      <TfrxMemoView Name="ME_ReportTitulo" Align="baWidth" AllowVectorExport="True" Left="0" Top="102.04731" Width="718.1107" Height="22.67718" Font.Charset="1" Font.Color="128" Font.Height="-19" Font.Name="Calibri" Font.Style="3" Frame.Typ="0" Fill.BackColor="15790320" HAlign="haCenter" ParentFont="False" VAlign="vaCenter" Text="Movimiento de fondos"/>
+    </TfrxReportTitle>
+    <TfrxPageHeader Name="PageHeader1" FillType="ftBrush" FillGap.Top="0" FillGap.Left="0" FillGap.Bottom="0" FillGap.Right="0" Frame.Typ="0" Height="37.7953" Left="0" Top="173.85838" Width="718.1107">
+      <TfrxMemoView Name="Memo3" AllowVectorExport="True" Left="49.13389" Top="7.55906" Width="72.60713707" Height="15.11812" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="1" Frame.Typ="8" Frame.Width="0.5" ParentFont="False" Text="Fecha"/>
+      <TfrxMemoView Name="Memo4" AllowVectorExport="True" Left="125.52055707" Top="7.55906" Width="33.70754745" Height="15.11812" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="1" Frame.Typ="8" Frame.Width="0.5" ParentFont="False" Text="Tipo"/>
+      <TfrxMemoView Name="Memo5" AllowVectorExport="True" Left="317.96836453" Top="7.55906" Width="108.94585332" Height="15.11812" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="1" Frame.Typ="8" Frame.Width="0.5" ParentFont="False" Text="Comprobante"/>
+      <TfrxMemoView Name="Memo6" AllowVectorExport="True" Left="498.72528784" Top="7.55906" Width="26.45667339" Height="15.11812" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="1" Frame.Typ="8" Frame.Width="0.5" HAlign="haRight" ParentFont="False" Text="I/E"/>
+      <TfrxMemoView Name="Memo7" AllowVectorExport="True" Left="430.03323116" Top="7.55906" Width="60.47244339" Height="15.11812" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="1" Frame.Typ="8" Frame.Width="0.5" HAlign="haRight" ParentFont="False" Text="Importe"/>
+      <TfrxMemoView Name="Memo1" AllowVectorExport="True" Left="162.51979" Top="7.55906" Width="146.74115332" Height="15.11812" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="1" Frame.Typ="8" Frame.Width="0.5" ParentFont="False" Text="Descripción"/>
+      <TfrxMemoView Name="Memo21" AllowVectorExport="True" Left="529.1342" Top="7.55906" Width="173.19786332" Height="15.11812" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="1" Frame.Typ="8" Frame.Width="0.5" ParentFont="False" Text="Observaciones"/>
+      <TfrxMemoView Name="Memo2" AllowVectorExport="True" Left="3.77953" Top="7.55906" Width="38.59136707" Height="15.11812" Font.Charset="1" Font.Color="0" Font.Height="-11" Font.Name="Calibri" Font.Style="1" Frame.Typ="8" Frame.Width="0.5" ParentFont="False" Text="IdMov"/>
+    </TfrxPageHeader>
+    <TfrxMasterData Name="MasterData1" FillType="ftBrush" FillGap.Top="0" FillGap.Left="0" FillGap.Bottom="0" FillGap.Right="0" Frame.Typ="0" Height="15.11812" Left="0" Top="272.12616" Width="718.1107" OnAfterPrint="MasterData1OnAfterPrint" ColumnWidth="0" ColumnGap="0" DataSet="StringDS" DataSetName="StringDS" KeepFooter="True" RowCount="0" OnMasterDetail="MasterData1OnMasterDetail">
+      <TfrxMemoView Name="Memo10" AllowVectorExport="True" Left="0" Top="0" Width="46.15042707" Height="15.11812" DataField="IdMovim" DataSet="StringDS" DataSetName="StringDS" Font.Charset="1" Font.Color="-16777208" Font.Height="-12" Font.Name="Calibri" Font.Style="0" Frame.Typ="0" HAlign="haCenter" ParentFont="False" Text="[StringDS.&#34;IdMovim&#34;]"/>
+      <TfrxMemoView Name="Memo9" AllowVectorExport="True" Left="430.86642" Top="0" Width="61.26854707" Height="15.11812" DataSet="StringDS" DataSetName="StringDS" DisplayFormat.FormatStr="%2.2f" DisplayFormat.Kind="fkNumeric" Font.Charset="1" Font.Color="-16777208" Font.Height="-12" Font.Name="Calibri" Font.Style="0" Frame.Typ="0" HAlign="haRight" ParentFont="False" Text="[StringDS.&#34;Importe&#34;]"/>
+      <TfrxMemoView Name="Memo11" AllowVectorExport="True" Left="49.13389" Top="0" Width="72.60713707" Height="15.11812" DataField="Fecha" DataSet="StringDS" DataSetName="StringDS" Font.Charset="1" Font.Color="-16777208" Font.Height="-12" Font.Name="Calibri" Font.Style="0" Frame.Typ="0" ParentFont="False" Text="[StringDS.&#34;Fecha&#34;]"/>
+      <TfrxMemoView Name="Memo12" AllowVectorExport="True" Left="124.72449" Top="0" Width="34.81183707" Height="15.11812" DataField="Tipo" DataSet="StringDS" DataSetName="StringDS" Font.Charset="1" Font.Color="-16777208" Font.Height="-12" Font.Name="Calibri" Font.Style="0" Frame.Typ="0" ParentFont="False" Text="[StringDS.&#34;Tipo&#34;]"/>
+      <TfrxMemoView Name="Memo13" AllowVectorExport="True" Left="162.51979" Top="0" Width="148.19773707" Height="15.11812" DataField="Descripcion" DataSet="StringDS" DataSetName="StringDS" Font.Charset="1" Font.Color="-16777208" Font.Height="-12" Font.Name="Calibri" Font.Style="0" Frame.Typ="0" ParentFont="False" Text="[StringDS.&#34;Descripcion&#34;]"/>
+      <TfrxMemoView Name="Memo14" AllowVectorExport="True" Left="317.48052" Top="0" Width="110.40243707" Height="15.11812" DataField="Comprobante" DataSet="StringDS" DataSetName="StringDS" Font.Charset="1" Font.Color="-16777208" Font.Height="-12" Font.Name="Calibri" Font.Style="0" Frame.Typ="0" HAlign="haRight" ParentFont="False" Text="[StringDS.&#34;Comprobante&#34;]"/>
+      <TfrxMemoView Name="Memo15" AllowVectorExport="True" Left="498.89796" Top="0" Width="27.25277707" Height="15.11812" DataField="I/E" DataSet="StringDS" DataSetName="StringDS" Font.Charset="1" Font.Color="-16777208" Font.Height="-12" Font.Name="Calibri" Font.Style="0" Frame.Typ="0" ParentFont="False" Text="[StringDS.&#34;I/E&#34;]"/>
+      <TfrxMemoView Name="Memo16" AllowVectorExport="True" Left="529.1342" Top="0" Width="174.65444707" Height="15.11812" DataField="Observaciones" DataSet="StringDS" DataSetName="StringDS" Font.Charset="1" Font.Color="-16777208" Font.Height="-12" Font.Name="Calibri" Font.Style="0" Frame.Typ="0" ParentFont="False" Text="[StringDS.&#34;Observaciones&#34;]"/>
+    </TfrxMasterData>
+    <TfrxPageFooter Name="PageFooter1" FillType="ftBrush" FillGap.Top="0" FillGap.Left="0" FillGap.Bottom="0" FillGap.Right="0" Frame.Typ="0" Height="16.11812" Left="0" Top="419.52783" Width="718.1107">
+      <TfrxMemoView Name="Memo17" AllowVectorExport="True" Left="0" Top="1" Width="139.84261" Height="15.11812" AutoWidth="True" Font.Charset="1" Font.Color="0" Font.Height="-12" Font.Name="Calibri" Font.Style="0" Frame.Typ="0" ParentFont="False" Text="[Date] [Time]"/>
+      <TfrxMemoView Name="Memo18" Align="baRight" AllowVectorExport="True" Left="559.37044" Top="1" Width="158.74026" Height="15.11812" Font.Charset="1" Font.Color="0" Font.Height="-12" Font.Name="Calibri" Font.Style="0" Frame.Typ="0" HAlign="haRight" ParentFont="False" Text="Página [Page#]"/>
+      <TfrxLineView Name="Line2" AllowVectorExport="True" Left="0" Top="0" Width="721.89023" Height="0" Color="0" Frame.Typ="4"/>
+    </TfrxPageFooter>
+    <TfrxFooter Name="Footer1" FillType="ftBrush" FillGap.Top="0" FillGap.Left="0" FillGap.Bottom="0" FillGap.Right="0" Frame.Typ="0" Height="49.13389" Left="0" Top="309.92146" Width="718.1107" Stretched="True">
+      <TfrxMemoView Name="Memo8" AllowVectorExport="True" Left="222.99227" Top="3.77953" Width="272.12616" Height="34.01577" Font.Charset="1" Font.Color="0" Font.Height="-12" Font.Name="Arial" Font.Style="1" Frame.Typ="0" HAlign="haRight" Highlight.Font.Charset="1" Highlight.Font.Color="255" Highlight.Font.Height="-13" Highlight.Font.Name="Arial" Highlight.Font.Style="0" Highlight.Condition="Value = 0" Highlight.FillType="ftBrush" Highlight.Frame.Typ="0" ParentFont="False" Text="[SUM(&#60;StringDS.&#34;Importe&#34;&#62;,MasterData1)]">
+        <Formats>
+          <item FormatStr="%2.2f" Kind="fkNumeric"/>
+          <item/>
+        </Formats>
+      </TfrxMemoView>
+    </TfrxFooter>
+  </TfrxReportPage>
+</TfrxReport>

@@ -1,0 +1,604 @@
+﻿unit Ajustes_fm;
+
+interface
+
+uses
+  SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls,
+  Forms, Dialogs,printers, StdCtrls, DB,  ExtCtrls, TabNotBk,
+  Spin, Buttons, Mask, ComCtrls,Grids, ADODB, ValEdit, pngimage, jpeg,
+  frxClass, Vcl.CategoryButtons, Vcl.WinXPanels;
+
+type
+  TFmAjustes = class(TForm)
+    OD_Config: TOpenDialog;
+    Panel1: TPanel;
+    BC_Aceptar: TBitBtn;
+    BC_Cancel: TBitBtn;
+    frxReport1: TfrxReport;
+    FileOpenDialog1: TFileOpenDialog;
+    CardPanel1: TCardPanel;
+    Card1: TCard;
+    Card2: TCard;
+    Img_EmpLogo: TImage;
+    BC_DirLogoPath: TSpeedButton;
+    SpeedButton3: TSpeedButton;
+    Label36: TLabel;
+    Ed_Empdatos1: TEdit;
+    Label16: TLabel;
+    Ed_Empdatos2: TEdit;
+    Label13: TLabel;
+    Ed_EmpCUIT: TEdit;
+    Label17: TLabel;
+    E2: TEdit;
+    Label19: TLabel;
+    E1: TEdit;
+    Label12: TLabel;
+    BC_ShowFmActivar: TBitBtn;
+    CB_Vendedor: TComboBox;
+    Ed_VendedorId: TEdit;
+    Label31: TLabel;
+    CB_PtoVtaDef: TComboBox;
+    Label9: TLabel;
+    CV_VerStk: TCheckBox;
+    BC_ComprobVta: TBitBtn;
+    BC_TiposComp: TBitBtn;
+    BC_ComprobHabil: TBitBtn;
+    BC_ImpTasas: TBitBtn;
+    BC_ImpTiposCompr: TBitBtn;
+    Ed_ProgImpFiscal: TEdit;
+    SpeedButton4: TSpeedButton;
+    Label20: TLabel;
+    Lb_puerto: TLabel;
+    CB_PuertoFical: TComboBox;
+    Label2: TLabel;
+    Ed_ProgFactElect: TEdit;
+    SpeedButton2: TSpeedButton;
+    Memo_ArchivFE: TMemo;
+    Card3: TCard;
+    CB_ImpresDefRep: TComboBox;
+    Label18: TLabel;
+    Cb_FormatosiMPRES: TComboBox;
+    Label35: TLabel;
+    BitBtn1: TBitBtn;
+    Ed_CarpReportes: TEdit;
+    Label33: TLabel;
+    Label26: TLabel;
+    Ed_CarpExportacion: TEdit;
+    SpeedButton6: TSpeedButton;
+    SpeedButton5: TSpeedButton;
+    Card4: TCard;
+    Label5: TLabel;
+    Ed_emailAdress: TEdit;
+    Label14: TLabel;
+    Ed_EmailNombre: TEdit;
+    lbl_from: TLabel;
+    Ed_EmailHostSMTP: TEdit;
+    Label8: TLabel;
+    Ed_EmailPortSMTP: TEdit;
+    Label22: TLabel;
+    Ed_EmailUser: TEdit;
+    Label29: TLabel;
+    Ed_EmailPassword: TEdit;
+    Card5: TCard;
+    Ed_Servidor: TLabeledEdit;
+    Ed_BaseDatos: TLabeledEdit;
+    Ed_Usuario: TLabeledEdit;
+    Ed_Password: TLabeledEdit;
+    Image1: TImage;
+    Lb_LogoPath: TLabel;
+    SpeedButton1: TSpeedButton;
+    SpeedButton7: TSpeedButton;
+    SpeedButton8: TSpeedButton;
+    Panel2: TPanel;
+    SpeedButton9: TSpeedButton;
+    SpeedButton10: TSpeedButton;
+    SpeedButton11: TSpeedButton;
+    Card6: TCard;
+    Label1: TLabel;
+    Label4: TLabel;
+    Label6: TLabel;
+    Label28: TLabel;
+    Ed_AccesoRap1: TEdit;
+    Ed_AccesoRap1Tit: TEdit;
+    Ed_AccesoRap2Tit: TEdit;
+    Ed_AccesoRap2: TEdit;
+    Ed_AccesoRap3Tit: TEdit;
+    Ed_AccesoRap3: TEdit;
+    CB_EstiloInterfaz: TComboBox;
+    BitBtn2: TBitBtn;
+    Label3: TLabel;
+    Ed_ProgPadronAfip: TEdit;
+    SpeedButton12: TSpeedButton;
+    procedure BC_DirLogoPathClick(Sender: TObject);
+    procedure BC_AceptarClick(Sender: TObject);
+    procedure BC_CancelClick(Sender: TObject);
+    procedure CB_VendedorChange(Sender: TObject);
+    procedure BC_TiposCompClick(Sender: TObject);
+    procedure BC_ImpTasasClick(Sender: TObject);
+    procedure BC_ComprobVtaClick(Sender: TObject);
+    procedure BC_ComprobHabilClick(Sender: TObject);
+    procedure SpeedButton4Click(Sender: TObject);
+    procedure BitBtn1Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure BC_ShowFmActivarClick(Sender: TObject);
+    procedure SpeedButton5Click(Sender: TObject);
+    procedure CB_EstiloInterfazChange(Sender: TObject);
+    procedure SpeedButton6Click(Sender: TObject);
+    procedure BC_LoginClick(Sender: TObject);
+    procedure SpeedButton2Click(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
+    procedure SpeedButton7Click(Sender: TObject);
+    procedure SpeedButton8Click(Sender: TObject);
+    procedure SpeedButton10Click(Sender: TObject);
+    procedure SpeedButton9Click(Sender: TObject);
+    procedure SpeedButton11Click(Sender: TObject);
+    procedure BitBtn2Click(Sender: TObject);
+    procedure BC_ImpTiposComprClick(Sender: TObject);
+    procedure SpeedButton12Click(Sender: TObject);
+  private
+    { Private declarations }
+    PROCEDURE GuardarAjustes;
+    PROCEDURE LeerAjustes;
+  public
+    { Public declarations }
+
+  end;
+var
+  FmAjustes: TFmAjustes;
+implementation
+{$R *.DFM}
+uses
+  //class
+   COmprobVtaPtosVta, vendedores, COmprobVtaTipos, ajustes,
+
+  FileCtrl ,main, UtilsFunc, importsdll,
+  IniFiles, Presenta,
+  ComprobVtaimp_fm,
+  ComprobVtaImpxTipo_fm,
+  ComprobVtaPtosVta_fm,
+  ComprobVtaTipos_fm,
+  ComprobVtaDefinidos_fm,
+  ComprobVtaEstados_fm,
+  hashes,       registry,
+  //registry, IdGlobal, IdHash, IdHashMessageDigest,
+  vendedores_fm,
+  //registro,
+   Vcl.Themes, registro_fm;
+
+procedure GetPortList(List: TStringList); //puertos serie
+var
+  i: integer;
+begin
+  List.Clear;
+  with TRegistry.Create do
+  try
+    RootKey:= HKEY_LOCAL_MACHINE;
+    Access:= KEY_READ;
+    if OpenKey('HARDWARE\DEVICEMAP\SERIALCOMM',FALSE) then
+    begin
+      GetValueNames(List);
+      for i:= List.Count - 1 downto 0 do
+        List[i]:= ReadString(List[i]);
+      CloseKey;
+    end;
+  finally
+    Free;
+  end;
+end;
+
+PROCEDURE TFmAjustes.GuardarAjustes;
+begin
+
+//Conexi�n
+   AjusteObj.Servidor := Ed_Servidor.text ;
+   AjusteObj.BaseDatos := Ed_BaseDatos.text;
+   AjusteObj.Usuario := Ed_Usuario.text;
+   AjusteObj.passWord := Ed_Password.text;
+
+ //Empresa
+   AjusteObj.logoPath := Lb_LogoPath.caption;
+
+   AjusteObj.EmpNombre := E1.Text;
+   AjusteObj.EmpEmail := E2.Text;
+   AjusteObj.Empdatos1 := Ed_EmpDatos1.Text;
+   AjusteObj.Empdatos2 := Ed_EmpDatos2.text;
+   AjusteObj.EmpCuit := Ed_EmpCUIT.text;
+
+ //Facturaci�n
+
+   if CV_VerStk.state = cbchecked then
+     AjusteObj.AdvertenciaStock := true else AjusteObj.AdvertenciaStock := false;
+
+   AjusteObj.vendedorID := Ed_VendedorId.text;
+   AjusteObj.VendedorNombre := CB_Vendedor.text;
+
+   AjusteObj.PtoVtaDefecto := CB_PtoVtaDef.text;
+
+
+ // Impresion fiscal
+   AjusteObj.SoftImpFiscalPath := Ed_ProgImpFiscal.text;
+   AjusteObj.PuertoImpFiscal := CB_PuertoFical.text;
+   AjusteObj.SoftFactElectPath := Ed_ProgFactElect.text;
+   AjusteObj.SoftPadronAfip := Ed_ProgPadronAfip.text;
+
+ //impresion
+   AjusteObj.ImpresPorDefecto := Cb_impresDefRep.ItemIndex;
+   AjusteObj.CarpExportacion := Ed_CarpExportacion.Text;
+   AjusteObj.CarpReportes := Ed_CarpReportes.Text;
+
+
+ // Email
+    AjusteObj.EmailAdress := Ed_EmailAdress.text;
+    AjusteObj.Emailnombre := Ed_EmailNombre.text;
+    AjusteObj.EmailHostSMTP := Ed_EmailHostSMTP.text;
+    AjusteObj.EmailPortSMTP := StrToInt(Ed_EmailPortSMTP.text);
+    AjusteObj.EmailUser := Ed_EmailUser.text ;
+    AjusteObj.EmailPass := Ed_EmailPassword.text;
+  //  Ed_CarpTempAdjuntos.text := ArchivoIni.ReadString('email','CarpTempAdjuntos','');
+
+  //OPC VISUALES
+
+   AjusteObj.AccRap1Link := Ed_AccesoRap1.text;
+   AjusteObj.AccRap2Link := Ed_AccesoRap2.text;
+   AjusteObj.AccRap3Link := Ed_AccesoRap3.text;
+
+   AjusteObj.AccRap1Texto := Ed_AccesoRap1Tit.text;
+   AjusteObj.AccRap2Texto := Ed_AccesoRap2Tit.text;
+   AjusteObj.AccRap3Texto := Ed_AccesoRap3Tit.text;
+
+   AjusteObj.ToolMainB1Comprob := Cb_ToolmainBot1.text;
+   AjusteObj.ToolMainB1Titulo := Ed_ToolmainBot1Titulo.text;
+   AjusteObj.ToolMainB2Comprob := Cb_ToolmainBot2.text;
+   AjusteObj.ToolMainB2Titulo := Ed_ToolmainBot2Titulo.text;
+   AjusteObj.ToolMainB3Comprob := Cb_ToolmainBot3.text;
+   AjusteObj.ToolMainB3Titulo := Ed_ToolmainBot3Titulo.texT;
+   AjusteObj.ToolMainB4Comprob := Cb_ToolmainBot4.text;
+   AjusteObj.ToolMainB4Titulo := Ed_ToolmainBot4Titulo.text;
+   AjusteObj.EstiloInterfaz := CB_EstiloInterfaz.Text;
+END;
+
+
+PROCEDURE TFmAjustes.LeerAjustes;
+var
+  i : integer;
+  Lista : TStringList;
+begin
+ Try
+
+//Conexi�n
+
+   Ed_Servidor.text := AjusteObj.Servidor;
+   Ed_BaseDatos.text := AjusteObj.BaseDatos;
+   Ed_Usuario.text := AjusteObj.Usuario;
+   Ed_Password.text := AjusteObj.passWord;
+
+ //Empresa
+   Lb_LogoPath.caption := AjusteObj.logoPath;
+   if FileExists(Lb_LogoPath.caption) then
+     Img_EmpLogo.Picture.LoadFromFile(Lb_LogoPath.caption);
+
+   E1.Text := AjusteObj.EmpNombre;
+   E2.Text := AjusteObj.EmpEmail;
+   Ed_EmpDatos1.Text := AjusteObj.Empdatos1;
+   Ed_EmpDatos2.text := AjusteObj.Empdatos2;
+   Ed_EmpCUIT.text := AjusteObj.EmpCuit;
+
+ //Facturaci�n
+   CV_VerStk.state := cbUnchecked;
+   if AjusteObj.AdvertenciaStock then
+      CV_VerStk.state := cbchecked;
+
+   Ed_VendedorId.text := AjusteObj.vendedorID;
+   CB_Vendedor.text :=  AjusteObj.VendedorNombre;
+
+
+   Lista := TStringList.Create;
+   PuntosVta_LeerListado(Lista);
+   CB_PtoVtaDef.Items.Assign( Lista);
+   CB_PtoVtaDef.text := AjusteObj.PtoVtaDefecto;
+
+
+ // Impresion fiscal
+   Lista.Clear;
+   GetPortList(Lista);
+   CB_PuertoFical.Items.Assign(Lista);
+   Ed_ProgImpFiscal.text := AjusteObj.SoftImpFiscalPath;
+   CB_PuertoFical.text := AjusteObj.PuertoImpFiscal;
+   Ed_ProgFactElect.text := AjusteObj.SoftFactElectPath;
+   Ed_ProgPadronAfip.text := AjusteObj.SoftPadronAfip;
+
+ //impresion
+   Cb_impresDefRep.ItemIndex := AjusteObj.ImpresPorDefecto;
+   Ed_CarpExportacion.Text :=  AjusteObj.CarpExportacion;
+   Ed_CarpReportes.Text := AjusteObj.CarpReportes;
+
+
+ // Email
+    Ed_EmailAdress.text := AjusteObj.EmailAdress;
+    Ed_EmailNombre.text := AjusteObj.Emailnombre ;
+    Ed_EmailHostSMTP.text := AjusteObj.EmailHostSMTP;
+    Ed_EmailPortSMTP.text := IntToStr(AjusteObj.EmailPortSMTP);
+    Ed_EmailUser.text := AjusteObj.EmailUser;
+    Ed_EmailPassword.text := AjusteObj.EmailPass;
+  //  Ed_CarpTempAdjuntos.text := ArchivoIni.ReadString('email','CarpTempAdjuntos','');
+
+  //OPC VISUALES
+
+   Ed_AccesoRap1.text := AjusteObj.AccRap1Link ;
+   Ed_AccesoRap2.text := AjusteObj.AccRap2Link  ;
+   Ed_AccesoRap3.text := AjusteObj.AccRap3Link   ;
+
+   Ed_AccesoRap1Tit.text := AjusteObj.AccRap1Texto;
+   Ed_AccesoRap2Tit.text := AjusteObj.AccRap2Texto;
+   Ed_AccesoRap3Tit.text := AjusteObj.AccRap3Texto;
+
+   Cb_ToolmainBot1.text :=    AjusteObj.ToolMainB1Comprob;
+   Ed_ToolmainBot1Titulo.text := AjusteObj.ToolMainB1Titulo;
+   Cb_ToolmainBot2.text :=  AjusteObj.ToolMainB2Comprob;
+   Ed_ToolmainBot2Titulo.text := AjusteObj.ToolMainB2Titulo;
+   Cb_ToolmainBot3.text :=  AjusteObj.ToolMainB3Comprob;
+   Ed_ToolmainBot3Titulo.texT :=  AjusteObj.ToolMainB3Titulo;
+   Cb_ToolmainBot4.text :=  AjusteObj.ToolMainB4Comprob;
+   Ed_ToolmainBot4Titulo.text := AjusteObj.ToolMainB4Titulo;
+   CB_EstiloInterfaz.Text := AjusteObj.EstiloInterfaz;
+ Finally
+
+
+  Lista.Free;
+ end;
+
+end;
+
+procedure TFmAjustes.BC_DirLogoPathClick(Sender: TObject);
+begin
+ OD_Config.Filter := 'Im�gen|*.jpg;*.bmp;*.png';
+ IF OD_Config.Execute then
+  begin
+   Lb_LogoPath.Caption := OD_Config.FileName;
+   Img_EmpLogo.Picture.LoadFromFile(OD_Config.FileName);
+  End;
+end;
+
+procedure TFmAjustes.BC_TiposCompClick(Sender: TObject);
+var
+ FmConfTiposComprob : TFmConfTiposComprob;
+begin
+   FmConfTiposComprob := TFmConfTiposComprob.Create(Application);
+   FmConfTiposComprob.ShowModal
+
+end;
+
+procedure TFmAjustes.BitBtn1Click(Sender: TObject);
+begin
+   frxReport1.LoadFromFile( AjusteObj.CarpReportes + '\comprobantes\'+ Cb_FormatosImpres.Text);
+   frxReport1.DesignReport;
+end;
+
+
+
+procedure TFmAjustes.BitBtn2Click(Sender: TObject);
+var
+ FmComprobImpuesto : TFmComprobImpuestos;
+begin
+ FmComprobImpuesto := TFmComprobImpuestos.create(self);
+ FmComprobImpuesto.SHowModal;
+
+end;
+
+procedure TFmAjustes.Button1Click(Sender: TObject);
+begin
+   RunApp(Ed_ProgFactElect.text);
+end;
+
+procedure TFmAjustes.BC_ImpTasasClick(Sender: TObject);
+begin
+ FmImpuestos := TFmImpuestos.Create(Self);
+{ FmImpuestos.Parent := Ts_impuestos;
+ FmImpuestos.Align := alClient;}
+ FmImpuestos.ShowModal;
+end;
+
+procedure TFmAjustes.BC_ImpTiposComprClick(Sender: TObject);
+var
+ FmCompVtaEstados : TFmCompVtaEstados;
+begin
+ FmCompVtaEstados := TFmCompVtaEstados.create(self);
+ FmCompVtaEstados.SHowModal;
+end;
+
+procedure TFmAjustes.BC_ComprobHabilClick(Sender: TObject);
+begin
+ FmConfigComprobDefinidos := TFmConfigComprobDefinidos.Create(Self);
+ FmConfigComprobDefinidos.ShowModal;
+end;
+
+procedure TFmAjustes.BC_LoginClick(Sender: TObject);
+begin
+    RunApp(Ed_ProgImpFiscal.text);
+end;
+
+procedure TFmAjustes.BC_ShowFmActivarClick(Sender: TObject);
+begin
+   //FmRegistro := TFmRegistro.create(self);
+   //FmRegistro.SHowModal;
+end;
+
+procedure TFmAjustes.BC_AceptarClick(Sender: TObject);
+begin
+   GuardarAjustes;
+   AjustesGrabarIni(AjusteObj);
+   Mensaje('La configuración fue guardada. Algunos cambien necesitan que se re-inicie el sistema.','Configuración',1);
+end;
+
+procedure TFmAjustes.FormCreate(Sender: TObject);
+var
+ s: String;
+ Vendedores,Lista : TStringList;
+ page : Integer;
+begin
+
+  CB_EstiloInterfaz.Items.BeginUpdate;
+  try
+    CB_EstiloInterfaz.Items.Clear;
+    for s in TStyleManager.StyleNames do
+       CB_EstiloInterfaz.Items.Add(s);
+    CB_EstiloInterfaz.Sorted := True;
+    // Select the style that's currently in use in the combobox
+    CB_EstiloInterfaz.ItemIndex := CB_EstiloInterfaz.Items.IndexOf(TStyleManager.ActiveStyle.Name);
+  finally
+    CB_EstiloInterfaz.Items.EndUpdate;
+  end;
+
+{  Vendedores := TStringList.Create;
+  VendedoresLeerListado(Vendedores, 'activo');
+  CB_Vendedor.items.Assign(Vendedores);
+  Vendedores.Free;}
+
+  CB_ImpresDefRep.Items := Printer.Printers;
+  Cb_FormatosiMPRES.items := ArchivosCarpeta(AjusteObj.CarpReportes+ '\comprobantes', '*.fr3', False, False);
+
+   try
+    Lista := TStringList.Create;
+    Lista.Clear;
+    TiposComprobVtaLeerListado(Lista);   //LEE DB
+    Cb_ToolmainBot1.ITEMS.Assign(Lista);
+    Cb_ToolmainBot2.ITEMS.Assign(Lista);
+    Cb_ToolmainBot3.ITEMS.Assign(Lista);
+    Cb_ToolmainBot4.ITEMS.Assign(Lista);
+    Lista.free;
+   except
+
+   end;
+
+   LeerAjustes;
+   CardPanel1.ActiveCardIndex := 0;
+end;
+
+procedure TFmAjustes.BC_CancelClick(Sender: TObject);
+begin
+ close;
+end;
+
+procedure TFmAjustes.BC_ComprobVtaClick(Sender: TObject);
+var
+ FmConfPuntosVta : TFmConfPuntosVta;
+begin
+   FmConfPuntosVta := TFmConfPuntosVta.Create(Application);
+   FmConfPuntosVta.ShowModal
+end;
+
+procedure TFmAjustes.CB_VendedorChange(Sender: TObject);
+begin
+ Ed_VendedorId.Text := IntTOStr( TVendedor( CB_Vendedor.Items.Objects[CB_Vendedor.ItemIndex]).IdVendedor );
+end;
+
+procedure TFmAjustes.CB_EstiloInterfazChange(Sender: TObject);
+begin
+  TStyleManager.SetStyle(CB_EstiloInterfaz.Text);
+end;
+
+procedure TFmAjustes.SpeedButton10Click(Sender: TObject);
+begin
+ CardPanel1.ActiveCardIndex := 3;
+end;
+
+procedure TFmAjustes.SpeedButton11Click(Sender: TObject);
+begin
+ CardPanel1.ActiveCardIndex := 5;
+end;
+
+procedure TFmAjustes.SpeedButton12Click(Sender: TObject);
+begin
+  OD_Config.Filter :=  'Archivos EXE|*.exe';
+  IF OD_Config.execute Then
+    Ed_ProgPadronAfip.text := OD_Config.filename;
+end;
+
+procedure TFmAjustes.SpeedButton1Click(Sender: TObject);
+begin
+  CardPanel1.ActiveCardIndex := 0;
+end;
+
+procedure TFmAjustes.SpeedButton2Click(Sender: TObject);
+begin
+  OD_Config.Filter :=  'Archivos EXE|*.exe';
+  IF OD_Config.execute Then
+    Ed_ProgFactElect.text := OD_Config.filename;
+end;
+
+procedure TFmAjustes.SpeedButton4Click(Sender: TObject);
+begin
+  OD_Config.Filter :=  'Archivos EXE|*.exe';
+  IF OD_Config.execute Then
+    Ed_ProgImpFiscal.text := OD_Config.filename;
+
+end;
+
+procedure TFmAjustes.SpeedButton5Click(Sender: TObject);
+var
+ FDir : string;
+begin
+
+ if Win32MajorVersion >= 6 then
+  with TFileOpenDialog.Create(nil) do
+    try
+      Title := 'Seleccionar carpeta';
+      Options := [fdoPickFolders, fdoPathMustExist, fdoForceFileSystem]; // YMMV
+      OkButtonLabel := 'Seleccionar';
+      DefaultFolder := ExtractFilePath(Application.ExeName);
+      FileName := ExtractFilePath(Application.ExeName);
+      if Execute then
+        Ed_CarpExportacion.Text :=FileName;
+    finally
+      Free;
+    end
+else
+  if SelectDirectory('Seleccionar carpeta', ExtractFilePath(Application.ExeName), FDir,
+             [sdNewUI, sdNewFolder]) then
+    Ed_CarpExportacion.Text := FDir;
+end;
+
+procedure TFmAjustes.SpeedButton6Click(Sender: TObject);
+var
+ FDir : string;
+begin
+
+ if Win32MajorVersion >= 6 then
+  with TFileOpenDialog.Create(nil) do
+    try
+      Title := 'Seleccionar carpeta';
+      Options := [fdoPickFolders, fdoPathMustExist, fdoForceFileSystem]; // YMMV
+      OkButtonLabel := 'Seleccionar';
+      DefaultFolder := ExtractFilePath(Application.ExeName);
+      FileName := ExtractFilePath(Application.ExeName);
+      if Execute then
+        Ed_CarpReportes.Text :=FileName;
+    finally
+      Free;
+    end
+else
+  if SelectDirectory('Seleccionar carpeta', ExtractFilePath(Application.ExeName), FDir,
+             [sdNewUI, sdNewFolder]) then
+    Ed_CarpReportes.Text := FDir;
+
+end;
+
+procedure TFmAjustes.SpeedButton7Click(Sender: TObject);
+begin
+ CardPanel1.ActiveCardIndex := 1;
+end;
+
+procedure TFmAjustes.SpeedButton8Click(Sender: TObject);
+begin
+ CardPanel1.ActiveCardIndex := 2;
+end;
+
+procedure TFmAjustes.SpeedButton9Click(Sender: TObject);
+begin
+ CardPanel1.ActiveCardIndex := 4;
+end;
+
+end.
+
+

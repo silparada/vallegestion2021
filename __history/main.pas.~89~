@@ -1,0 +1,784 @@
+﻿unit main;
+
+interface
+
+uses Windows,Data.DB, Data.Win.ADODB, System.ImageList, Vcl.ImgList, Vcl.Controls,vcl.forms,
+  Vcl.Menus, System.Classes, System.Actions, Vcl.ActnList, Vcl.StdCtrls,
+  Vcl.ComCtrls, Vcl.Buttons, Vcl.Imaging.pngimage, Vcl.ExtCtrls, Vcl.ToolWin
+ ,SysUtils ,Vcl.Graphics
+
+  ,comprobVta, Vcl.WinXCtrls, Vcl.VirtualImageList, Vcl.BaseImageCollection,
+  Vcl.ImageCollection, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Error, FireDAC.UI.Intf, FireDAC.Phys.Intf, FireDAC.Stan.Def,
+  FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.Phys.MySQL,
+  FireDAC.Phys.MySQLDef, FireDAC.VCLUI.Wait, FireDAC.Comp.Client,
+  dialogs ,usuarios  ,ajustes, Vcl.ButtonGroup;
+
+
+
+type
+  TFmMain = class(TForm)
+    StatusBarMain: TStatusBar;
+    Tb_Opciones: TToolBar;
+    ToolButton19: TToolButton;
+    ToolButton35: TToolButton;
+    PnLogin: TPanel;
+    Label1: TLabel;
+    Ed_UsuarioId: TLabeledEdit;
+    Ed_UsuarioPass: TLabeledEdit;
+    BC_Login: TButton;
+    BC_CancelLogin: TButton;
+    ImageCollection1: TImageCollection;
+    VImg_48: TVirtualImageList;
+    VImg_24: TVirtualImageList;
+    SplitView2: TSplitView;
+    Panel2: TPanel;
+    MonthCalendar1: TMonthCalendar;
+    Panel1: TPanel;
+    Pn_CambiarPass: TPanel;
+    Label3: TLabel;
+    Ed_PassActual: TLabeledEdit;
+    Ed_PassNuevo1: TLabeledEdit;
+    BC_AceptarCambPAss: TButton;
+    BC_CancelarCambPAss: TButton;
+    Ed_PassNuevo2: TLabeledEdit;
+    Pn_Usuario: TPanel;
+    lb_UserNombre: TLabel;
+    TB_Main: TToolBar;
+    ToolButton3: TToolButton;
+    ToolButton1: TToolButton;
+    ToolButton27: TToolButton;
+    TB_EmisionFiscal: TToolButton;
+    ToolButton29: TToolButton;
+    ToolButton17: TToolButton;
+    ToolButton4: TToolButton;
+    BC_Usuario: TButton;
+    Menu_Usuario: TPopupMenu;
+    MenuLogInOut: TMenuItem;
+    MenuCambPass: TMenuItem;
+    MenuEventos: TMenuItem;
+    PnTop: TPanel;
+    lb_Servidor: TLabel;
+    Lb_BAseDatos: TLabel;
+    ButtonGroup1: TButtonGroup;
+    ToolButton5: TToolButton;
+    ToolButton9: TToolButton;
+    ToolButton6: TToolButton;
+    ToolButton10: TToolButton;
+    ToolButton2: TToolButton;
+    VImg_16: TVirtualImageList;
+    RP_TabyCloseBoton: TRelativePanel;
+    PageControlMain: TPageControl;
+    TabSheet2: TTabSheet;
+    BC_CerrarTab: TButton;
+    Img_Logo: TImage;
+    ToolButton7: TToolButton;
+    Image1: TImage;
+    FDConnection1: TFDConnection;
+    procedure ShowFmArticulosExecute(Sender: TObject);
+    procedure SHowFmClientesExecute(Sender: TObject);
+    procedure ShowUsuariosExecute(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure CerrarExecute(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+
+    procedure ShowHint(Sender: TObject);
+    procedure ShowFmCondVtaExecute(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure ShowFmCajaExecute(Sender: TObject);
+    procedure ShowLstCompVtaExecute(Sender: TObject);
+    procedure ShowFmGrVentasExecute(Sender: TObject);
+    procedure ShowFmEventosExecute(Sender: TObject);
+    procedure Lb_AccesoRap1MouseEnter(Sender: TObject);
+    procedure Lb_AccesoRap1MouseLeave(Sender: TObject);
+    procedure SpeedButton2Click(Sender: TObject);
+    procedure ToolButton17Click(Sender: TObject);
+    procedure BC_CerrarTabClick(Sender: TObject);
+    procedure BC_LoginClick(Sender: TObject);
+    procedure BC_CancelLoginClick(Sender: TObject);
+    procedure ToolButton4Click(Sender: TObject);
+    procedure Panel1Click(Sender: TObject);
+    procedure ToolButton2Click(Sender: TObject);
+    procedure ToolButton6Click(Sender: TObject);
+    procedure Image2DblClick(Sender: TObject);
+    procedure BC_AceptarCambPAssClick(Sender: TObject);
+    procedure BC_CancelarCambPAssClick(Sender: TObject);
+    procedure ToolButton10Click(Sender: TObject);
+    procedure TB_EmisionFiscalClick(Sender: TObject);
+    procedure MenuLogInOutClick(Sender: TObject);
+    procedure MenuCambPassClick(Sender: TObject);
+    procedure MenuEventosClick(Sender: TObject);
+    procedure ToolButton35Click(Sender: TObject);
+    procedure ButtonGroup1Items0Click(Sender: TObject);
+    procedure ButtonGroup1Items1Click(Sender: TObject);
+    procedure ButtonGroup1Items2Click(Sender: TObject);
+    procedure ToolButton5Click(Sender: TObject);
+    procedure ToolButton9Click(Sender: TObject);
+    procedure PageControlMainChange(Sender: TObject);
+  private
+    { Private declarations }
+     // FmCtaCteClientes: TFmCtaCteClientes;
+
+//    Function EstaCreadoComprobVta(NombreClase,TipoComprob : string) : boolean;
+    procedure Bloqueo;
+    procedure DesBloqueo;
+  public
+    { Public declarations }
+    Function EstaCreado(Caption : string) : boolean;
+    var
+     ConexionDB : Boolean;
+  end;
+
+var
+  FmMain: TFmMain;
+  Usuario : TUsuario;
+  LstFormasdePago,LstTipoComprbvta,LstPuntosVta,LstImpuestos ,LstVendedores,  LstEstados : TStringList;
+  AjusteObj : TAjuste;
+
+implementation
+uses
+{$R *.dfm}
+ //class
+
+  eventos,vendedores, formasPago,COmprobVtaPtosvta,COmprobVtaTipos, COmprobVtaImpxTipos, ComprobVtaEstados,
+ //forms
+
+ Articulos_fm, ComprobVta_Fm, Clientes_fm, ciudades_fm,rubros_fm, usuarios_fm,   Presenta,
+ ComprobvtaAdd_fm,  DashBoard,
+ Vcl.Themes,
+
+ UtilsFunc,
+ Ajustes_fm,
+ FormasPago_fm, eventos_fm,
+ vendedores_fm,
+ recibovta_fm,
+ fondos_fm,
+ gr_ventas,
+
+ ReportesMain,   importsdll,
+ ShellApi, main_procesos
+ ,System.Threading
+ ;
+
+var
+  fondo: TBitmap;
+  pn: TPanel;
+  img: TImage;
+
+
+procedure TFmMain.Bloqueo;
+begin
+  BorderStyle := bsnone;
+  fondo := GetFormImage;
+  FadeBitmap(fondo);
+  pn := TPanel.Create(nil);
+  img := TImage.Create(nil);
+  img.Parent := pn;
+     pn.BoundsRect := ClientRect;
+     pn.BevelOuter := bvNone;
+     img.Align := alClient;
+     img.Picture.Bitmap.Assign(fondo);
+     pn.Parent := Self;
+
+
+end;
+procedure TFmMain.ButtonGroup1Items0Click(Sender: TObject);
+var
+  MyLink: string;
+begin
+  MyLink := 'http://web.whatsapp.com';
+  ShellExecute(Application.Handle, PChar('open'), PChar(MyLink),  nil, nil, SW_SHOW);
+end;
+
+procedure TFmMain.ButtonGroup1Items1Click(Sender: TObject);
+var
+  MyLink: string;
+begin
+  MyLink := 'https://calendar.google.com/calendar/u/0/r?tab=wc';
+  ShellExecute(Application.Handle, PChar('open'), PChar(MyLink),  nil, nil, SW_NORMAL);
+end;
+
+procedure TFmMain.ButtonGroup1Items2Click(Sender: TObject);
+var
+  MyLink: string;
+begin
+  MyLink := AjusteObj.CarpExportacion;
+  ShellExecute(Application.Handle, PChar('open'), PChar(MyLink),  nil, nil, SW_NORMAL);
+end;
+
+procedure TFmMain.DesBloqueo;
+begin
+  BorderStyle := bssizeable;
+  img.Free;
+  pn.Free;
+  fondo.Free;
+end;
+
+procedure TFmMain.ShowFmEventosExecute(Sender: TObject);
+var
+ TabSheet : TtabSheet;
+begin
+
+  if EstaCreado('Eventos') then Exit;
+
+  tabSheet := TTabSheet.Create(PageControlMain);
+  tabSheet.PageControl := PageControlMain;
+
+  FmEventos := TFmEventos.Create(tabSheet);
+  FmEventos.Caption := 'Eventos';
+  FmEventos.Parent := tabSheet;
+  PageControlMain.ActivePage := tabSheet;
+  tabSheet.Caption := FmEventos.Caption;
+  FmEventos.show;
+
+end;
+
+
+procedure TFmMain.CerrarExecute(Sender: TObject);
+begin
+ close;
+end;
+
+Function TFmMain.EstaCreado(Caption : string) : boolean;
+var
+  I: Integer;
+begin
+  result := false;
+  BC_CerrarTab.Visible := PageControlMain.PageCount>0;
+  for i:= 0 to PageControlMain.PageCount-1 do
+   Begin
+     if PageControlMain.Pages[i].Caption = caption then
+      begin
+       PageControlMain.ActivePage := PageControlMain.Pages[i];
+       result := true;
+      end;
+   End;
+
+
+end;
+procedure TFmMain.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  ajusteObj.free;
+  Usuario.Free;
+  FmMain.FDConnection1.Close;
+  EventosAgregar('Salida del sistema.');
+  Application.Terminate;
+end;
+
+procedure TFmMain.FormCreate(Sender: TObject);
+begin
+  ajusteObj := TAjuste.Create;
+  AjustesLeerIni(ajusteObj);
+
+
+//  PageControlMain.Pages[0].Free;
+
+  if FileExists(ajusteObj.LogoPath) then
+    Img_Logo.Picture.LoadFromFile(ajusteObj.LogoPath);
+
+ { readlicencia(ajusteObj);
+   FmMain.Caption := 'VALLE GESTI�N - Lic. '+ ajusteObj.EmpNombre;}
+  Usuario := TUsuario.create;
+  Usuario.nivel := 0;
+  Application.OnHint := ShowHint;
+  TStyleManager.SetStyle(ajusteObj.EstiloInterfaz);
+end;
+
+procedure TFmMain.ShowHint(Sender: TObject);
+begin
+ FmMain.StatusBarMain.Panels[0].Text :=  Application.Hint;
+end;
+
+procedure TFmMain.FormShow(Sender: TObject);
+var
+ oParams: TStrings;
+ ItemMenu : TMenuItem;
+ j: integer;
+ Thread: TThread;
+begin
+{ Lb_AccesoRap1.Caption := ajusteObj.AccRap1Texto;
+  Lb_AccesoRap2.Caption := ajusteObj.AccRap2Texto;
+  Lb_AccesoRap3.Caption := ajusteObj.AccRap3Texto;}
+
+  SplitView2.Opened := false;
+
+  oParams := TStringList.Create;
+  oParams.Add('Server='+ AjusteObj.Servidor);
+  oParams.Add('Database='+ AjusteObj.baseDatos);
+  oParams.Add('OSAuthent=Yes');
+  oParams.Add('User_Name='+ AjusteObj.Usuario);
+  oParams.Add('Password='+AjusteObj.Password);
+{
+  oParams.Add('Server=vallesoft.com.ar');
+  oParams.Add('Database=spsi_recaudaciones');
+  oParams.Add('OSAuthent=Yes');
+  oParams.Add('User_Name=spsi_silvio');
+  oParams.Add('Password=Nico1942$');     }
+
+  try
+    FDManager.ConnectionDefs.Clear;
+    FDManager.AddConnectionDef('MySQL_Connection', 'MySQL', oParams);
+    FDConnection1.ConnectionDefName := 'MySQL_Connection';
+    FDConnection1.Connected := True;
+    Caption := Caption +' - '+ AjusteObj.EmpNombre;
+  except
+ // FmAjustes := FmAjustes.create(Application);
+ // FmAjustes.ShowModal;
+    exit;
+  end;
+
+  lb_BAseDatos.caption := 'BASE DATOS: '+ AjusteObj.baseDatos;
+  lb_Servidor.Caption :=  'SERVIDOR  : '+ AjusteObj.Servidor;
+
+  Ed_UsuarioId.text := 'sparada';
+  Ed_UsuarioPass.text := '1942304';
+
+{  Thread := TThread.CreateAnonymousThread(
+    procedure
+    var
+      j: integer;
+    begin
+       LstFormasdePago := TStringList.Create;
+        FormaPagoLeerListado(LstFormasdePago,'activo');
+       LstTipoComprbvta := TStringList.Create;
+        TiposComprobVtaLeerListado(LstTipoComprbvta);
+       LstPuntosVta := TStringList.Create;
+        PuntosVta_LeerListado(LstPuntosVta);
+       LstImpuestos := TStringList.Create;
+        ReadDb_LstComprobImpuestos(LstImpuestos);
+       LstVendedores := TStringList.Create;
+        VendedoresLeerListado(LstVendedores,'activo');
+
+       LstEstados := TStringList.create;
+        ComprobVtaEstadoLeerListado(LstEstados);
+
+       for j:=0 to LstTipoComprbvta.Count-1 do
+         Begin
+          ItemMenu := TMenuItem.create( Menu_Comprobantes.Items );
+          ItemMenu.OnClick := CrearCompVtaFromMenu;
+          ItemMenu.Caption := LstTipoComprbVta[j];
+          Menu_Comprobantes.Items.Add(ItemMenu); // Menu boton de barra
+         end;
+    end
+  );
+    Thread.Start;}
+
+  Menu_Usuario.Items[0].OnClick(sender) ;
+end;
+
+procedure TFmMain.Image2DblClick(Sender: TObject);
+begin
+ Pn_CambiarPass.visible := true;
+
+end;
+
+procedure TFmMain.Lb_AccesoRap1MouseEnter(Sender: TObject);
+begin
+  TLabel(Sender).Cursor := crHandPoint;
+end;
+
+procedure TFmMain.Lb_AccesoRap1MouseLeave(Sender: TObject);
+begin
+  TLabel(Sender).Cursor := crDefault;
+end;
+
+procedure TFmMain.PageControlMainChange(Sender: TObject);
+begin
+  BC_CerrarTab.Visible := PageControlMain.PageCount>0;
+end;
+
+procedure TFmMain.Panel1Click(Sender: TObject);
+begin
+ if SplitView2.Opened then
+   SplitView2.Close else SplitView2.Open;
+end;
+
+
+procedure TFmMain.ShowLstCompVtaExecute(Sender: TObject);
+var
+ TabSheet : TtabSheet;
+begin
+
+  if EstaCreado('Comp.Venta') then Exit;
+
+  tabSheet := TTabSheet.Create(PageControlMain);
+  tabSheet.PageControl := PageControlMain;
+
+  FmListaComprobVta := TFmListaComprobVta.Create(tabSheet);
+  FmListaComprobVta.Caption := 'Comp.Venta';
+  FmListaComprobVta.Parent := tabSheet;
+  PageControlMain.ActivePage := tabSheet;
+  tabSheet.Caption := FmListaComprobVta.Caption;
+  FmListaComprobVta.show;
+
+
+end;
+
+procedure TFmMain.ShowFmGrVentasExecute(Sender: TObject);
+begin
+ if not EstaCreado('TFm_GRVentas') then
+  Fm_GRVentas := TFm_GRVentas.create(application);
+end;
+
+procedure TFmMain.ShowFmArticulosExecute(Sender: TObject);
+var
+ TabSheet : TtabSheet;
+begin
+
+  if EstaCreado('Articulos') then Exit;
+
+  tabSheet := TTabSheet.Create(PageControlMain);
+  tabSheet.PageControl := PageControlMain;
+
+  FmArticulos := TFmArticulos.Create(tabSheet);
+  FmArticulos.Caption := 'Articulos';
+  FmArticulos.Parent := tabSheet;
+  PageControlMain.ActivePage := tabSheet;
+  tabSheet.Caption := FmArticulos.Caption;
+  FmArticulos.show;
+
+end;
+
+procedure TFmMain.ShowFmCajaExecute(Sender: TObject);
+var
+ TabSheet : TtabSheet;
+begin
+
+  if EstaCreado('Fondos') then Exit;
+
+  tabSheet := TTabSheet.Create(PageControlMain);
+  tabSheet.PageControl := PageControlMain;
+
+  FmFondos := TFmFondos.Create(tabSheet);
+  FmFondos.Caption := 'Fondos';
+  FmFondos.Parent := tabSheet;
+  PageControlMain.ActivePage := tabSheet;
+  tabSheet.Caption := FmFondos.Caption;
+  FmFondos.show;
+end;
+
+procedure TFmMain.SHowFmClientesExecute(Sender: TObject);
+var
+ TabSheet : TtabSheet;
+begin
+  if EstaCreado('Clientes') then Exit;
+
+  tabSheet := TTabSheet.Create(PageControlMain);
+  tabSheet.PageControl := PageControlMain;
+
+  FmClientes := TFmClientes.Create(tabSheet);
+  FmClientes.Caption := 'Clientes';
+  FmClientes.Parent := tabSheet;
+  PageControlMain.ActivePage := tabSheet;
+  tabSheet.Caption := FmClientes.Caption;
+  FmClientes.show;
+
+
+end;
+
+procedure TFmMain.ShowFmCondVtaExecute(Sender: TObject);
+begin
+  if not EstaCreado('TFmFormasPago') then
+   FmFormasPago := TFmFormasPago.create(application);
+end;
+
+procedure TFmMain.ShowUsuariosExecute(Sender: TObject);
+ var
+ TabSheet : TtabSheet;
+begin
+
+  if EstaCreado('Rubros') then Exit;
+
+  tabSheet := TTabSheet.Create(PageControlMain);
+  tabSheet.PageControl := PageControlMain;
+
+  FmRubros := TFmRubros.Create(tabSheet);
+  FmRubros.Caption := 'Rubros';
+  FmRubros.Parent := tabSheet;
+  PageControlMain.ActivePage := tabSheet;
+  tabSheet.Caption := FmRubros.Caption;
+  FmRubros.show;
+end;
+
+procedure TFmMain.BC_AceptarCambPAssClick(Sender: TObject);
+begin
+
+
+  if not( Ed_PassNuevo1.text = Ed_PassNuevo2.text) Then
+     begin
+       mensaje('El nuevo password y la confirmaci�n no coinciden.','Seguridad',1);
+       exit;
+     end;
+
+   CambiarPassword(Usuario.id ,Ed_PassNuevo1.text,Ed_PassActual.text );
+   Pn_CambiarPass.Visible := false;
+end;
+
+procedure TFmMain.BC_CancelarCambPAssClick(Sender: TObject);
+begin
+  Pn_CambiarPass.Visible := false;
+  DesBloqueo;
+end;
+
+procedure TFmMain.BC_CancelLoginClick(Sender: TObject);
+begin
+  Close;
+end;
+
+procedure TFmMain.BC_CerrarTabClick(Sender: TObject);
+begin
+   PageControlMain.ActivePage.free;
+   BC_CerrarTab.Visible := PageControlMain.PageCount>0;
+end;
+
+procedure TFmMain.BC_LoginClick(Sender: TObject);
+var
+ j:integer;
+ ItemMenu : TMenuItem;
+
+begin
+  Usuario.id:= Ed_UsuarioId.text;
+  Usuario.password := Ed_UsuarioPass.text;
+ // Usuario.SuperAdmin := False;
+  if UsuarioLogin(Usuario) Then
+    begin
+      UsuariosLeerUsuario(Usuario);
+      lb_UserNombre.Caption := Usuario.ID;
+      Menu_Usuario.Items[0].Caption := 'Salida del sistema';
+      PnLogin.Visible := false;
+      DesBloqueo;
+      EventosAgregar('Ingreso al sistema');
+    end else
+        begin
+          Mensaje('Usuario o password no vÁlidos!!','Acceso',3);
+          exit;
+        end;
+       Application.ProcessMessages;
+       LstFormasdePago := TStringList.Create;
+       FormaPagoLeerListado(LstFormasdePago,'activo');
+        StatusBarMain.Panels[1].Text := 'Cargando formas de pago...';
+       Application.ProcessMessages;
+       LstTipoComprbvta := TStringList.Create;
+        TiposComprobVtaLeerListado(LstTipoComprbvta);
+        StatusBarMain.Panels[1].Text := 'Cargando comprobantes de venta...';
+       Application.ProcessMessages;
+       LstPuntosVta := TStringList.Create;
+        PuntosVta_LeerListado(LstPuntosVta);
+        StatusBarMain.Panels[1].Text := 'Cargando puntos de venta...';
+        Application.ProcessMessages;
+       LstImpuestos := TStringList.Create;
+        ReadDb_LstComprobImpuestos(LstImpuestos);
+        StatusBarMain.Panels[1].Text := 'Cargando impuestos...';
+        Application.ProcessMessages;
+       LstVendedores := TStringList.Create;
+        VendedoresLeerListado(LstVendedores,'activo');
+        StatusBarMain.Panels[1].Text := 'Cargando vendedores...';
+        Application.ProcessMessages;
+       LstEstados := TStringList.create;
+        ComprobVtaEstadoLeerListado(LstEstados);
+        StatusBarMain.Panels[1].Text := 'Cargando estados...';
+        Application.ProcessMessages;
+
+     StatusBarMain.Panels[1].Text := 'Terminado!!';
+end;
+
+procedure TFmMain.SpeedButton2Click(Sender: TObject);
+begin
+  MonthCalendar1.Visible := not(MonthCalendar1.visible);
+end;
+
+procedure TFmMain.ToolButton10Click(Sender: TObject);
+var
+ TabSheet : TtabSheet;
+begin
+
+  if EstaCreado('Procesos') then Exit;
+
+  tabSheet := TTabSheet.Create(PageControlMain);
+  tabSheet.PageControl := PageControlMain;
+
+  FmMainProcesos := TFmMainProcesos.Create(tabSheet);
+  FmMainProcesos.Caption := 'Procesos';
+  FmMainProcesos.Parent := tabSheet;
+  PageControlMain.ActivePage := tabSheet;
+  tabSheet.Caption := FmMainProcesos.Caption;
+  FmMainProcesos.show;
+
+end;
+
+procedure TFmMain.TB_EmisionFiscalClick(Sender: TObject);
+begin
+   RunApp(AjusteObj.SoftImpFiscalPath);
+end;
+
+procedure TFmMain.ToolButton17Click(Sender: TObject);
+var
+ TabSheet : TtabSheet;
+begin
+
+  if EstaCreado('Vendedores') then Exit;
+
+  tabSheet := TTabSheet.Create(PageControlMain);
+  tabSheet.PageControl := PageControlMain;
+
+  FmVendedores := TFmVendedores.Create(tabSheet);
+  FmVendedores.Caption := 'Vendedores';
+  FmVendedores.Parent := tabSheet;
+  PageControlMain.ActivePage := tabSheet;
+  tabSheet.Caption := FmVendedores.Caption;
+  FmVendedores.show;
+
+end;
+
+procedure TFmMain.ToolButton2Click(Sender: TObject);
+begin
+
+  FmAjustes := TFmAjustes.Create(Application);
+  FmAjustes.Caption := 'Ajustes';
+  FmAjustes.showModal;
+end;
+
+procedure TFmMain.ToolButton35Click(Sender: TObject);
+var
+ TabSheet : TtabSheet;
+begin
+
+  if EstaCreado('Usuarios') then Exit;
+
+  tabSheet := TTabSheet.Create(PageControlMain);
+  tabSheet.PageControl := PageControlMain;
+
+  FmUsuarios := TFmUsuarios.Create(tabSheet);
+  FmUsuarios.Caption := 'Usuarios';
+  FmUsuarios.Parent := tabSheet;
+  PageControlMain.ActivePage := tabSheet;
+  tabSheet.Caption := FmUsuarios.Caption;
+  FmUsuarios.show;
+
+
+end;
+
+procedure TFmMain.ToolButton4Click(Sender: TObject);
+begin
+   close;
+end;
+
+procedure TFmMain.ToolButton5Click(Sender: TObject);
+var
+ TabSheet : TtabSheet;
+begin
+
+  if EstaCreado('Rubros') then Exit;
+
+  tabSheet := TTabSheet.Create(PageControlMain);
+  tabSheet.PageControl := PageControlMain;
+
+  FmRubros := TFmRubros.Create(tabSheet);
+  FmRubros.Caption := 'Rubros';
+  FmRubros.Parent := tabSheet;
+  PageControlMain.ActivePage := tabSheet;
+  tabSheet.Caption := FmRubros.Caption;
+  FmRubros.show;
+
+end;
+
+procedure TFmMain.ToolButton6Click(Sender: TObject);
+var
+ TabSheet : TtabSheet;
+begin
+
+  if EstaCreado('Reportes') then Exit;
+
+  tabSheet := TTabSheet.Create(PageControlMain);
+  tabSheet.PageControl := PageControlMain;
+
+  FmReportesVta := TFmReportesVta.Create(tabSheet);
+  FmReportesVta.Caption := 'Reportes';
+  FmReportesVta.Parent := tabSheet;
+  PageControlMain.ActivePage := tabSheet;
+  tabSheet.Caption := FmReportesVta.Caption;
+  FmReportesVta.show;
+
+
+end;
+
+procedure TFmMain.ToolButton9Click(Sender: TObject);
+var
+ TabSheet : TtabSheet;
+begin
+
+  if EstaCreado('Graficos') then Exit;
+
+  tabSheet := TTabSheet.Create(PageControlMain);
+  tabSheet.PageControl := PageControlMain;
+
+  Fm_GRVentas := TFm_GRVentas.Create(tabSheet);
+  Fm_GRVentas.Caption := 'Graficos';
+  Fm_GRVentas.Parent := tabSheet;
+  PageControlMain.ActivePage := tabSheet;
+  tabSheet.Caption := Fm_GRVentas.Caption;
+  Fm_GRVentas.show;
+
+end;
+
+procedure TFmMain.MenuCambPassClick(Sender: TObject);
+begin
+   Bloqueo;
+   Pn_CambiarPass.Visible := true;
+   Pn_CambiarPass.BringToFront;
+   Ed_PassActual.text := '';
+   Ed_PassNuevo1.text := '';
+   Ed_PassNuevo2.Text := '';
+   Ed_PassActual.SetFocus;
+end;
+
+procedure TFmMain.MenuEventosClick(Sender: TObject);
+var
+ tabSheet : TtabSheet;
+ i : integer;
+begin
+  for i:= 0 to PageControlMain.PageCount-1 do
+   Begin
+     if PageControlMain.Pages[i].Caption = 'Eventos' then
+      begin
+       PageControlMain.ActivePage := PageControlMain.Pages[i];
+       exit;
+      end;
+   End;
+
+  tabSheet := TTabSheet.Create(PageControlMain);
+  tabSheet.PageControl := PageControlMain;
+
+  FmEventos := tFmEventos.Create(tabSheet);
+  FmEventos.Parent := tabSheet;
+  PageControlMain.ActivePage := tabSheet;
+  tabSheet.Caption := FmEventos.Caption;
+  FmEventos.show;
+
+
+
+end;
+
+procedure TFmMain.MenuLogInOutClick(Sender: TObject);
+var
+  i:integer;
+begin
+   Usuario.id := '';
+   Usuario.nombre := '';
+ //Usuario.SuperAdmin := false;
+   Usuario.sector := '';
+ //Activo : Boolean;
+   lb_UserNombre.Caption := 'Usuario';
+
+  if Menu_Usuario.Items[0].Caption = 'Salida del sistema' then
+   for i:=PageControlMain.PageCount-1 downto 0 do
+    PageControlMain.Pages[i].free;
+
+   Bloqueo;
+   PnLogin.Visible := true;
+   PnLogin.BringToFront;
+   Ed_UsuarioId.SetFocus;
+
+end;
+
+end.

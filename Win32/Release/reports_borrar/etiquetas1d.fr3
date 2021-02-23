@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<TfrxReport Version="5.5.8" DotMatrixReport="False" IniFile="\Software\Fast Reports" PreviewOptions.Buttons="4095" PreviewOptions.Zoom="1" PrintOptions.Printer="Por defecto" PrintOptions.PrintOnSheet="0" ReportOptions.CreateDate="42546,9374862616" ReportOptions.Description.Text="" ReportOptions.LastChange="42585,6867694329" ScriptLanguage="PascalScript" ScriptText.Text="begin&#13;&#10;&#13;&#10;end.">
+  <Datasets>
+    <item DataSet="DSItems" DataSetName="DSItems"/>
+  </Datasets>
+  <TfrxDataPage Name="Data" Height="1000" Left="0" Top="0" Width="1000"/>
+  <TfrxReportPage Name="Page1" PaperWidth="210" PaperHeight="297" PaperSize="9" LeftMargin="10" RightMargin="10" TopMargin="10" BottomMargin="10" Columns="3" ColumnWidth="63,3333333333333" ColumnPositions.Text="0&#13;&#10;63,3333333333333&#13;&#10;126,666666666667" HGuides.Text="" VGuides.Text="">
+    <TfrxMasterData Name="MasterData1" FillType="ftBrush" FillGap.Top="0" FillGap.Left="0" FillGap.Bottom="0" FillGap.Right="0" Height="80,22047" Left="0" Top="18,89765" Width="239,370233333333" Columns="1" ColumnWidth="18897,6377952756" ColumnGap="0" DataSet="DSItems" DataSetName="DSItems" RowCount="0">
+      <TfrxMemoView Name="DSItemsDescripcion" Left="90,70872" Top="3,77953" Width="143,62214" Height="52,91342" DataField="Descripcion" DataSet="DSItems" DataSetName="DSItems" Font.Charset="1" Font.Color="0" Font.Height="-12" Font.Name="Calibri" Font.Style="0" ParentFont="False" Text="[DSItems.&#34;Descripcion&#34;]"/>
+      <TfrxMemoView Name="Memo1" Left="151,1812" Top="56,69295" Width="83,14966" Height="18,89765" DataSet="DSItems" DataSetName="DSItems" DisplayFormat.FormatStr="%2.2f" DisplayFormat.Kind="fkNumeric" Font.Charset="1" Font.Color="0" Font.Height="-16" Font.Name="Calibri" Font.Style="1" HAlign="haRight" ParentFont="False" Text="[DSItems.&#34;Precio&#34;]"/>
+      <TfrxBarCodeView Name="BarCode1" Left="3,77953" Top="3,77953" Width="82,4" Height="52,91342" BarType="bcCodeEAN13" DataField="Codigo" DataSet="DSItems" DataSetName="DSItems" Rotation="0" Text="12345678" WideBarRatio="2" Zoom="0,8" Font.Charset="1" Font.Color="0" Font.Height="-12" Font.Name="Arial" Font.Style="0"/>
+    </TfrxMasterData>
+  </TfrxReportPage>
+</TfrxReport>

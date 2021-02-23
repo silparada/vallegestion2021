@@ -1,0 +1,243 @@
+unit gr_ventas;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs,   ExtCtrls,   StdCtrls, Buttons,
+    FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
+  FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client,
+  ComCtrls, ToolWin,  frxClass, frxDBSet, VclTee.TeeGDIPlus, VCLTee.TeEngine,
+  VCLTee.Series, VCLTee.TeeProcs, VCLTee.Chart, Data.DB, Data.Win.ADODB,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option ;
+
+type
+  TFm_GRVentas = class(TForm)
+    Panel1: TPanel;
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
+    TabSheet3: TTabSheet;
+    GR_VentasTotales: TChart;
+    Series1: TBarSeries;
+    Gr_ContadoCtaCte: TChart;
+    BarSeries1: TBarSeries;
+    Series3: TBarSeries;
+    Gr_VentasVsIngr: TChart;
+    CC_Anio: TComboBox;
+    Label1: TLabel;
+    ToolBar1: TToolBar;
+    TB_LoadDB: TToolButton;
+    TB_Copy: TToolButton;
+    Tb_Exit: TToolButton;
+    frxReport1: TfrxReport;
+    TB_Print: TToolButton;
+    Ed_Titulo: TEdit;
+    Label2: TLabel;
+    BarSeries2: TBarSeries;
+    BarSeries3: TBarSeries;
+    procedure FormCreate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure TB_LoadDBClick(Sender: TObject);
+    procedure TB_CopyClick(Sender: TObject);
+    procedure Tb_ExitClick(Sender: TObject);
+    procedure TB_PrintClick(Sender: TObject);
+    procedure PageControl1Change(Sender: TObject);
+    procedure frxReport1BeforePrint(Sender: TfrxReportComponent);
+  private
+    { Private declarations }
+
+  public
+    { Public declarations }
+  end;
+
+var
+  Fm_GRVentas: TFm_GRVentas;
+
+implementation
+{$R *.dfm}
+uses main,UtilsFunc, rp_utils ;
+var
+  Bitmap1 : TBITMAP;
+
+Procedure VentasTotales;
+var
+ Tabla : TFdQuery;
+ DesdeF,HastaF : TDateTime;
+ I: Integer;
+begin
+ Fm_GRVentas.GR_VentasTotales.Series[0].Clear;
+ Tabla := TFdQuery.Create(Application);
+ Tabla.Connection := FmMain.FDConnection1;
+ Screen.cursor := crHourGlass;
+ Fm_GRVentas.GR_VentasTotales.Title.Caption := 'VENTAS TOTALES - PERIODO:'+ Fm_GRVentas.CC_Anio.text;
+ for I := 1 to 12 do
+  begin
+   Tabla.SQL.Clear;
+   DesdeF := strtoDate('01/'+ IntToStr(i) +'/'+ Fm_GRVentas.CC_Anio.Text );
+   HastaF := strtoDate('15/'+ IntToStr(i) +'/'+ Fm_GRVentas.CC_Anio.Text);
+   HastaF := LastMonthDay(HastaF);
+   Tabla.SQL.ADD('SELECT SUM(MovimVta.Importe)As Total FROM movimvta Where Fecha BETWEEN :FechaIni and :FechaFin And DebCred='+ quotedStr('D') );
+   Tabla.ParamByName('FechaIni').value := DateToStr(DesdeF);
+   Tabla.ParamByName('FechaFin').Value:= DateToStr(HastaF);
+   Tabla.open;
+   Fm_GRVentas.GR_VentasTotales.Series[0].AddXY(i, Tabla.FieldByName('Total').AsFloat ) ;
+  end;
+ Screen.cursor := crDefault;
+end;
+
+procedure VentasVsIngresos;
+var
+ Tabla : TFDQuery;
+ DesdeF,HastaF : TDateTime;
+ I: Integer;
+begin
+ //exit;
+ Fm_GRVentas.Gr_VentasVsIngr.Series[0].Clear;
+ Fm_GRVentas.Gr_VentasVsIngr.Series[1].Clear;
+ Tabla := TFDQuery.Create(Application);
+ Tabla.Connection := FmMain.FDConnection1;
+ Screen.cursor := crHourGlass;
+ For I := 1 to 12 do
+ begin
+  Tabla.SQL.Clear;
+  DesdeF := strtoDate('01/'+ IntToStr(i) +'/'+ Fm_GRVentas.CC_Anio.Text );
+  HastaF := strtoDate('15/'+ IntToStr(i) +'/'+ Fm_GRVentas.CC_Anio.Text);
+  HastaF := LastMonthDay(HastaF);
+  Tabla.SQL.ADD('SELECT SUM(MovimVta.Importe) As Total FROM movimvta Where Fecha BETWEEN :FechaIni and :FechaFin AND DebCred='+ quotedstr('D'));
+  Tabla.ParamByName('FechaIni').value := DateToStr(DesdeF);
+  Tabla.ParamByName('FechaFin').Value:= DateToStr(HastaF);
+  Tabla.open;
+  Fm_GRVentas.Gr_VentasVsIngr.Series[0].AddXY(i, Tabla.FieldByName('Total').AsFloat) ;
+  Tabla.close;
+  Tabla.SQL.Clear;
+  Tabla.SQL.ADD('SELECT SUM(Fondos.Importe) As Total FROM fondos Where Fecha BETWEEN :FechaIni and :FechaFin AND IngEgr='+ QuotedStr('I'));
+  Tabla.ParamByName('FechaIni').value := DateToStr(DesdeF);
+  Tabla.ParamByName('FechaFin').Value:= DateToStr(HastaF);
+  Tabla.open;
+  Fm_GRVentas.Gr_VentasVsIngr.Series[1].AddXY(i, Tabla.FieldByName('Total').AsFloat);
+  Tabla.close;
+ end;
+ Screen.cursor := crDefault;
+
+end;
+
+procedure ContadoVsCtaCte;
+var
+ Tabla : TFDQuery;
+ DesdeF,HastaF : TDateTime;
+ I: Integer;
+begin
+ //exit;
+ Fm_GRVentas.Gr_ContadoCtaCte.Series[0].Clear;
+ Fm_GRVentas.Gr_ContadoCtaCte.Series[1].Clear;
+ Tabla := TFDQuery.Create(Application);
+ Tabla.Connection := FmMain.FDConnection1;
+ Screen.cursor := crHourGlass;
+ For I := 1 to 12 do
+ begin
+  Tabla.SQL.Clear;
+  DesdeF := strtoDate('01/'+ IntToStr(i) +'/'+ Fm_GRVentas.CC_Anio.Text );
+  HastaF := strtoDate('15/'+ IntToStr(i) +'/'+ Fm_GRVentas.CC_Anio.Text);
+  HastaF := LastMonthDay(HastaF);
+  Tabla.SQL.ADD('SELECT SUM(MovimVta.Importe) As Total FROM movimvta Where Fecha BETWEEN :FechaIni and :FechaFin AND CondVta=0 AND DebCred='+ quotedstr('D') );
+  Tabla.ParamByName('FechaIni').value := DateToStr(DesdeF);
+  Tabla.ParamByName('FechaFin').Value:= DateToStr(HastaF);
+  Tabla.open;
+  Fm_GRVentas.Gr_ContadoCtaCte.Series[0].AddXY(i, Tabla.FieldByName('Total').AsFloat) ;
+  Tabla.close;
+  Tabla.SQL.Clear;
+  Tabla.SQL.ADD('SELECT SUM(MovimVta.Importe) As Total FROM movimvta Where Fecha BETWEEN :FechaIni and :FechaFin AND CondVta=1 AND DebCred='+ quotedstr('D') );
+  Tabla.ParamByName('FechaIni').value := DateToStr(DesdeF);
+  Tabla.ParamByName('FechaFin').Value:= DateToStr(HastaF);
+  Tabla.open;
+  Fm_GRVentas.Gr_ContadoCtaCte.Series[1].AddXY(i, Tabla.FieldByName('Total').AsFloat);
+  Tabla.close;
+ end;
+
+ Screen.cursor := crDefault;
+
+end;
+
+procedure TFm_GRVentas.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+ action := caFree;
+end;
+
+procedure TFm_GRVentas.FormCreate(Sender: TObject);
+var
+ i, Anio, Mes, Dia : word;
+begin
+
+   CC_Anio.Items.Clear;
+   DecodeDate(now, Anio, Mes, Dia);
+   for i := 0 to 10 do
+    Begin
+      CC_Anio.items.Add(IntToStr(Anio));
+      Anio := Anio -1;
+    End;
+  CC_Anio.ItemIndex := 0;
+
+end;
+
+procedure TFm_GRVentas.frxReport1BeforePrint(Sender: TfrxReportComponent);
+begin
+if Sender.Name = 'Picture1' then
+ CASE PageControl1.ActivePageIndex OF
+  0: TfrxPictureView(Sender).Picture.Assign( GR_VentasTotales.TeeCreateMetafile(False,   Rect(0, 0, Round(Sender.Width), Round(Sender.Height))));
+  1: TfrxPictureView(Sender).Picture.Assign( Gr_VentasVsIngr.TeeCreateMetafile(False,   Rect(0, 0, Round(Sender.Width), Round(Sender.Height))));
+  2: TfrxPictureView(Sender).Picture.Assign( Gr_ContadoCtaCte.TeeCreateMetafile(False,   Rect(0, 0, Round(Sender.Width), Round(Sender.Height))));
+ END;
+end;
+
+procedure TFm_GRVentas.PageControl1Change(Sender: TObject);
+begin
+ CASE PageControl1.ActivePageIndex OF
+  0 : Ed_Titulo.text := 'VENTAS';
+  1 : Ed_Titulo.text := 'VENTAS VS. INGRESOS';
+  2 : Ed_Titulo.text := 'Ventas Contado Vs. Ventas Cta. Cte.';
+ END;
+end;
+
+procedure TFm_GRVentas.TB_LoadDBClick(Sender: TObject);
+begin
+  CASE PageControl1.ActivePageIndex OF
+   0 : VentasTotales;
+   1 : VentasVsIngresos;
+   2 : ContadoVsCtaCte;
+  END;
+end;
+
+procedure TFm_GRVentas.TB_CopyClick(Sender: TObject);
+begin
+ CASE PageControl1.ActivePageIndex OF
+  0 : GR_VentasTotales.CopyToClipboardMetafile(TRUE);
+  1 : Gr_VentasVsIngr.CopyToClipboardMetafile(TRUE);
+  2 : Gr_ContadoCtaCte.CopyToClipboardMetafile(TRUE);
+ END;
+end;
+
+procedure TFm_GRVentas.Tb_ExitClick(Sender: TObject);
+begin
+ close;
+end;
+
+procedure TFm_GRVentas.TB_PrintClick(Sender: TObject);
+begin
+{ CASE PageControl1.ActivePageIndex OF
+  0 : Begin
+   End;
+  1 : Gr_VentasVsIngr.CopyToClipboardMetafile(TRUE);
+  2 : Gr_ContadoCtaCte.CopyToClipboardMetafile(TRUE);
+ END;       }
+
+
+ frxReport1.LoadFromFile( ajusteObj.CarpReportes+'\gr_ventas.fr3');
+SetUpReporte(frxReport1, Ed_Titulo.text);
+ frxReport1.PrepareReport;
+ frxReport1.ShowReport;
+
+end;
+
+end.

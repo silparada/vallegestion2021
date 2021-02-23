@@ -1,0 +1,249 @@
+unit clientesCtaCte_fm;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ComCtrls, StdCtrls, Buttons, ToolWin, frxClass,
+  frxExportPDF, frxExportBaseDialog, frxExportCSV, Vcl.ExtCtrls;
+
+type
+  TFmCtaCteClientes = class(TForm)
+    ListView1: TListView;
+    ToolBar1: TToolBar;
+    TB_readdb: TToolButton;
+    TB_Exit: TToolButton;
+    TB_Print: TToolButton;
+    TB_PdfExport: TToolButton;
+    BC_CSvExport: TToolButton;
+    frxReport1: TfrxReport;
+    StringDS: TfrxUserDataSet;
+    frxUserDataSet1: TfrxUserDataSet;
+    Panel1: TPanel;
+    Panel2: TPanel;
+    Label10: TLabel;
+    Ed_Saldo: TEdit;
+    ToolButton1: TToolButton;
+    Lb_idCliente: TLabel;
+    Lb_NombreClie: TLabel;
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormCreate(Sender: TObject);
+    procedure TB_readdbClick(Sender: TObject);
+    procedure TB_ExitClick(Sender: TObject);
+    procedure StringDSGetValue(const VarName: string; var Value: Variant);
+    procedure frxReport1GetValue(const VarName: string; var Value: Variant);
+    procedure TB_PrintClick(Sender: TObject);
+    procedure frxUserDataSet1GetValue(const VarName: string;
+      var Value: Variant);
+    procedure TB_PdfExportClick(Sender: TObject);
+    procedure ToolButton1Click(Sender: TObject);
+  private
+  //  procedure ActualizarCliente;
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FmCtaCteClientes: TFmCtaCteClientes;
+implementation
+{$R *.dfm}
+uses
+   rp_utils,importsdll,  ShellApi,
+   UtilsFunc,main, clientes,movimvta, jpeg;
+
+var
+  Cliente : TCliente;
+ {
+procedure TFmCtaCteClientes.ActualizarCliente;
+begin
+  Cliente.Id := StrToInt(Ed_IdCliente.text);
+  IF FindClienteID(Cliente) then
+   begin
+    Ed_IdCliente.text := IntToStr(Cliente.Id);
+    Ed_Nombre.text := Cliente.Nombre;
+   end else
+  if ShowClientesList(Cliente) then
+   begin
+    Ed_Nombre.text := Cliente.Nombre;
+    Ed_IdCliente.text := IntToStr(Cliente.Id)
+   end;
+  TB_readdbClick(self);
+end;     }
+procedure TFmCtaCteClientes.StringDSGetValue(const VarName: string;
+  var Value: Variant);
+begin
+   if CompareText(VarName, 'Fecha') = 0 then
+    Value := ListView1.Items[StringDS.RecNo].SubItems[0];
+   if CompareText(VarName, 'FechaVto') = 0 then
+    Value := ListView1.Items[StringDS.RecNo].SubItems[1];
+   if CompareText(VarName, 'Tipo') = 0 then
+    Value := ListView1.Items[StringDS.RecNo].SubItems[2];
+   if CompareText(VarName, 'Comprobante') = 0 then
+    Value := ListView1.Items[StringDS.RecNo].SubItems[3];
+   if CompareText(VarName, 'Importe') = 0 then
+    Value := StrToFloat(ListView1.Items[StringDS.RecNo].SubItems[4]);
+   if CompareText(VarName, 'Saldo') = 0 then
+    Value := StrToFloat(ListView1.Items[StringDS.RecNo].SubItems[5]);
+   if CompareText(VarName, 'Observaciones') = 0 then
+    Value := ListView1.Items[StringDS.RecNo].SubItems[6];
+end;
+
+procedure TFmCtaCteClientes.TB_ExitClick(Sender: TObject);
+begin
+ close;
+end;
+
+procedure TFmCtaCteClientes.TB_readdbClick(Sender: TObject);
+var
+ saldo: double;
+  Lista : TStringList;
+  i: integer;
+  li:TListItem;
+begin
+
+  Lista := TStringList.create;
+  MovimVtaLeerListado(Lb_idCliente.Caption, Lista);
+  Saldo := 0;
+  ListView1.clear;
+  for i:=0 to Lista.Count-1 do
+    with ListView1.Items.Add do begin
+      Caption := Lista[i];
+      SubItems.Add( TMovimVta(Lista.objects[i]).fecha );
+      SubItems.Add( TMovimVta(Lista.objects[i]).FechaVto);
+      SubItems.Add( TMovimVta(Lista.objects[i]).DebCred);
+      SubItems.Add( TMovimVta(Lista.objects[i]).Comprobante);
+      SubItems.Add( FloatToStrF(TMovimVta(Lista.objects[i]).Importe,fffixed,18,2) );
+      SubItems.Add( FloatToStrF(TMovimVta(Lista.objects[i]).Saldo,fffixed,18,2) );
+      SubItems.Add( TMovimVta(Lista.objects[i]).Observaciones );
+      if TMovimVta(Lista.objects[i]).DebCred = 'D' then
+       Saldo := Saldo +  TMovimVta(Lista.objects[i]).Saldo else
+        Saldo := Saldo -  TMovimVta(Lista.objects[i]).Saldo;
+    end;
+
+  Lista.Free;
+  Ed_Saldo.Text := FloatToStrF(Saldo,fffixed,18,2);
+
+end;
+
+procedure TFmCtaCteClientes.ToolButton1Click(Sender: TObject);
+var
+  Archivo : string;
+  oExportfilter : TfrxCustomExportFilter;
+  frxPdfExport1 : TfrxPdfExport;
+begin
+
+  if not DialogoBox('¿Enviar resúmen de cuenta por email a '+Lb_NombreClie.Caption +' ?','Envío Resúmen', 1,1)  then
+    exit;
+
+
+
+  Archivo :=  AjusteObj.CarpExportacion+'\Res.Cta. '+ Lb_NombreClie.Caption + '.pdf';
+  frxPdfExport1 := TfrxPdfExport.Create(nil);
+
+  oExportfilter := TfrxCustomExportFilter(frxPDFExport1);
+  oExportFilter.ShowDialog := False;
+  oExportFilter.FileName :=  Archivo;
+
+  StringDS.RangeEnd := reCount;
+  StringDS.RangeEndCount := ListView1.Items.Count;
+
+  frxReport1.LoadFromFile(AjusteObj.CarpReportes+'\clientes_CtaCte.fr3');
+  SetUpReporte(frxReport1, 'Resúmen de Cuenta Corriente');
+  frxReport1.PrepareReport(True);
+  frxReport1.Export(oExportFilter);
+
+  frxPdfExport1.Free;
+
+  Cliente.Id := StrToInt( Lb_idCliente.Caption );
+  ClientesLeerCliente(Cliente);
+  SendMail( Cliente.email, 'Envío resúmen cta.cte.', 'Envío de resúmen', 'Res.Cta. '+ Lb_NombreClie.Caption + '.pdf');
+
+end;
+
+procedure TFmCtaCteClientes.TB_PrintClick(Sender: TObject);
+begin
+  StringDS.RangeEnd := reCount;
+  StringDS.RangeEndCount := ListView1.Items.Count;
+
+  frxReport1.LoadFromFile(AjusteObj.CarpReportes+'\clientes_CtaCte.fr3');
+  SetUpReporte(frxReport1, 'Resúmen de Cuenta Corriente');
+
+  frxReport1.ShowReport;
+
+
+
+
+end;
+
+procedure TFmCtaCteClientes.TB_PdfExportClick(Sender: TObject);
+var
+  Archivo : string;
+  oExportfilter : TfrxCustomExportFilter;
+  frxPdfExport1 : TfrxPdfExport;
+begin
+  frxPdfExport1 := TfrxPdfExport.Create(nil);
+
+  frxReport1.LoadFromFile(AjusteObj.CarpReportes+'\clientes_CtaCte.fr3');
+  SetUpReporte(frxReport1, 'Resúmen de Cuenta Corriente');
+  StringDS.RangeEnd := reCount;
+  StringDS.RangeEndCount := ListView1.Items.Count;
+
+  SetUpReporte( frxReport1,'RESUMEN DE CUENTA');
+
+  Archivo  := AjusteObj.CarpExportacion+'\Res.Cta. - '+ Lb_NombreClie.Caption + '.pdf';
+  oExportfilter := TfrxCustomExportFilter(frxPDFExport1);
+  oExportFilter.ShowDialog := false;
+  oExportFilter.FileName := Archivo  ;
+  oExportFilter.OverwritePrompt := FALSE;
+  frxReport1.prepareReport(True);
+  frxReport1.Export(oExportFilter);
+
+  frxPdfExport1.Free;
+ // oExportfilter.Free; (ya liberado por frxPdfExport1
+  ShellExecute(Handle, 'OPEN',pchar('explorer.exe'),pchar('/select, "' + Archivo + '"'), nil,   SW_NORMAL);
+
+
+end;
+
+procedure TFmCtaCteClientes.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+   Cliente.Free;
+   action:= cafree;
+end;
+
+procedure TFmCtaCteClientes.FormCreate(Sender: TObject);
+begin
+   Cliente := TCliente.create;
+end;
+
+procedure TFmCtaCteClientes.frxReport1GetValue(const VarName: string;
+  var Value: Variant);
+begin
+   if CompareText(VarName, 'NroCta') = 0 then
+    Value :=  Lb_idCliente.Caption;
+   if CompareText(VarName, 'Nombre') = 0 then
+    Value :=  Lb_NombreClie.Caption;
+end;
+
+procedure TFmCtaCteClientes.frxUserDataSet1GetValue(const VarName: string;
+  var Value: Variant);
+begin
+   if CompareText(VarName, 'Fecha') = 0 then
+    Value := ListView1.Items[StringDS.RecNo].SubItems[0];
+   if CompareText(VarName, 'FechaVto') = 0 then
+    Value := ListView1.Items[StringDS.RecNo].SubItems[1];
+   if CompareText(VarName, 'Tipo') = 0 then
+    Value := ListView1.Items[StringDS.RecNo].SubItems[2];
+   if CompareText(VarName, 'Comprobante') = 0 then
+    Value := ListView1.Items[StringDS.RecNo].SubItems[3];
+   if CompareText(VarName, 'Importe') = 0 then
+    Value := StrToFloat(ListView1.Items[StringDS.RecNo].SubItems[4]);
+   if CompareText(VarName, 'Saldo') = 0 then
+    Value := StrToFloat(ListView1.Items[StringDS.RecNo].SubItems[5]);
+   if CompareText(VarName, 'Observaciones') = 0 then
+    Value := ListView1.Items[StringDS.RecNo].SubItems[6];
+end;
+
+end.

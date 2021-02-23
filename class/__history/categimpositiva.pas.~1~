@@ -1,0 +1,54 @@
+unit categimpositiva;
+
+interface
+
+uses
+ Vcl.Graphics,
+ SysUtils,forms,WinTypes, Classes, Contnrs,WideStrings,
+ FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
+  FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, FireDAC.Comp.DataSet,
+   FireDAC.Comp.Client
+ ;
+
+Type
+
+  TCategImpos = class(Tobject)
+    idcategoria : String[3];
+    Descripcion : String[50];
+    AlcanzaIva : Boolean;
+  end;
+
+
+Procedure ReadDb_LstCategImpos(var Lista : TStringList);
+
+Implementation
+uses
+ main,UtilsFunc;
+
+Procedure ReadDb_LstCategImpos(var Lista : TStringList);
+var
+  Table : TFDquery;
+  CategImpos : TCategImpos;
+begin
+  Table := TFDquery.Create(Application);
+  Table.Connection := FmMain.FDConnection1;
+  Table.SQL.Clear;
+  Table.SQL.ADD('SELECT * FROM categorias_impositivas Order By Descripcion');
+  Table.open;
+
+  while not Table.EOF do
+  begin
+    CategImpos := TCategImpos.Create;
+    CategImpos.Idcategoria := Table.FieldByName('Id').AsString;
+    CategImpos.Descripcion := Table.FieldByName('Descripcion').AsString;
+    CategImpos.AlcanzaIva := Table.FieldByName('alcanzaiva').AsBoolean;
+    Lista.AddObject( Table.FieldByName('Descripcion').AsString, CategImpos);
+    Table.next;
+  end;
+ Table.close;
+ Table.Destroy;
+end;
+
+
+end.
+

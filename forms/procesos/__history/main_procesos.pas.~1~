@@ -1,0 +1,64 @@
+unit main_procesos;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.WinXPanels,
+  Vcl.ExtCtrls;
+
+type
+  TFmMainProcesos = class(TForm)
+    Button1: TButton;
+    CategoryPanelGroup1: TCategoryPanelGroup;
+    CategoryPanel1: TCategoryPanel;
+    CategoryPanel2: TCategoryPanel;
+    Button2: TButton;
+    CardPanel1: TCardPanel;
+    Card1: TCard;
+    Card2: TCard;
+    BC_ImportarPrecios: TButton;
+    BC_IMpPrecios: TButton;
+    BC_ActPrecios: TButton;
+    Card3: TCard;
+    procedure BC_ActPreciosClick(Sender: TObject);
+    procedure BC_IMpPreciosClick(Sender: TObject);
+    procedure BC_ImportarPreciosClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FmMainProcesos: TFmMainProcesos;
+
+
+
+implementation
+{$R *.dfm}
+uses
+  main,actPrecios,ImportarExcel,ActPreciosExcel;
+
+procedure TFmMainProcesos.BC_ImportarPreciosClick(Sender: TObject);
+begin
+   FmActPreciosExcel := TFmActPreciosExcel.create(Nil);
+  FmActPreciosExcel.Parent := Card3;
+  CardPanel1.ActiveCard := card3;
+end;
+
+procedure TFmMainProcesos.BC_IMpPreciosClick(Sender: TObject);
+begin
+  FmImportExcel := TFmImportExcel.create(Nil);
+  FmImportExcel.Parent := Card1;
+  CardPanel1.ActiveCard := card1;
+end;
+
+procedure TFmMainProcesos.BC_ActPreciosClick(Sender: TObject);
+begin
+  FmActPrecios := TFmActPrecios.create(Nil);
+  FmActPrecios.Parent := Card2;
+  CardPanel1.ActiveCard := card2;
+end;
+
+end.
